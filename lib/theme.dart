@@ -3,6 +3,7 @@ import 'package:do_it/config/palette.dart';
 
 ThemeData lightTheme = ThemeData(
   canvasColor: Palette.mainColor,
+  primaryColorLight: Palette.subColor,
   scaffoldBackgroundColor: Palette.backgroundColor,
   dialogBackgroundColor: Palette.chatBackground,
   shadowColor: Palette.borderColor,
@@ -15,6 +16,7 @@ ThemeData lightTheme = ThemeData(
 
 ThemeData darkTheme = ThemeData.dark().copyWith(
   canvasColor: Color.fromRGBO(11, 11, 49, 1),
+  primaryColorLight: Color.fromRGBO(11, 11, 49, .5),
   scaffoldBackgroundColor: Palette.text,
   dialogBackgroundColor: Palette.text2,
   shadowColor: Palette.textSub,
