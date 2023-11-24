@@ -59,74 +59,71 @@ class _ChatBubblesState extends State<ChatBubbles> {
               : MainAxisAlignment.start,
           children: [
             if (widget.currentUser)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 10, 30),
-                child: Row(
-                  children: [
-                    widget.read != "0"
-                        ? Text(
-                            widget.read,
-                            style: const TextStyle(
-                              color: Palette.yellowColor,
-                            ),
-                          )
-                        : Container(),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        ChatBubble(
-                          clipper:
-                              ChatBubbleClipper5(type: BubbleType.sendBubble),
-                          alignment: Alignment.topRight,
-                          margin: EdgeInsets.only(top: 20),
-                          backGroundColor: Palette.mainColor,
-                          child: Container(
-                            constraints: const BoxConstraints(
-                              maxWidth: 300,
-                            ),
-                            child: Text(
-                              widget.message,
-                              style: TextStyle(color: Colors.white),
-                              softWrap: true,
-                            ),
+              Row(
+                children: [
+                  widget.read != "0"
+                      ? Text(
+                          widget.read,
+                          style: const TextStyle(
+                            color: Palette.yellowColor,
+                          ),
+                        )
+                      : Container(),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      ChatBubble(
+                        clipper:
+                            ChatBubbleClipper5(type: BubbleType.sendBubble),
+                        alignment: Alignment.topRight,
+                        margin: EdgeInsets.only(top: 20),
+                        backGroundColor: Palette.mainColor,
+                        child: Container(
+                          constraints: const BoxConstraints(
+                            maxWidth: 300,
+                          ),
+                          child: Text(
+                            widget.message,
+                            style: TextStyle(color: Colors.white),
+                            softWrap: true,
                           ),
                         ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        Text(
-                          widget.sendTime,
-                          style: TextStyle(
-                              fontSize: 12,
-                              color:
-                                  Theme.of(context).textTheme.headline1!.color),
-                        )
-                      ],
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Container(
-                      width: 40,
-                      height: 40,
-                      margin: const EdgeInsets.only(right: 20),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        image: DecorationImage(
-                          image: AssetImage(widget.userImage),
-                          fit: BoxFit.fill,
-                        ),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Text(
+                        widget.sendTime,
+                        style: TextStyle(
+                            fontSize: 12,
+                            color:
+                                Theme.of(context).textTheme.headline1!.color),
+                      )
+                    ],
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Container(
+                    width: 40,
+                    height: 40,
+                    margin: const EdgeInsets.only(right: 20),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      image: DecorationImage(
+                        image: AssetImage(widget.userImage),
+                        fit: BoxFit.fill,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             if (!widget.currentUser)
               Padding(
-                padding: const EdgeInsets.fromLTRB(10, 0, 0, 30),
+                padding: const EdgeInsets.only(left: 10),
                 child: Row(
                   children: [
                     const SizedBox(

@@ -15,15 +15,31 @@ class ChatRoom extends StatefulWidget {
 }
 
 class _ChatRoomState extends State<ChatRoom> {
+  late ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    Provider.of<CreatedProvider>(context, listen: false).loadChat();
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final _width = Provider.of<MediaQueryProvider>(context).getUseMenuWidth();
     final selectedProvider = Provider.of<SelectedProvider>(context);
     String selectedMenu = selectedProvider.getMenu();
     final chatList = Provider.of<CreatedProvider>(context).getChatList();
+    final chat = Provider.of<CreatedProvider>(context).getChat();
     List<ChatList> selectedChat =
         chatList.where((chat) => chat.name == selectedMenu).toList();
-    ;
+
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    });
 
     return Container(
       height: MediaQuery.of(context).size.height,
@@ -114,29 +130,25 @@ class _ChatRoomState extends State<ChatRoom> {
             ),
           ),
           Container(
-            child: Column(
-              children: [
-                ChatBubbles(
+            child: Expanded(
+              child: ListView.builder(
+                controller: _scrollController,
+                shrinkWrap: true,
+                itemCount: chat.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return ChatBubbles(
                     userId: "test",
                     userName: "test",
                     userImage: '../../../images/profile.png',
                     currentUser: true,
-                    message: 'test',
-                    sendTime: 'test',
+                    message: chat[index],
+                    sendTime: '오후 5:00',
                     today: true,
                     date: "2023.11.21",
-                    read: "1"),
-                ChatBubbles(
-                    userId: "test",
-                    userName: "test",
-                    userImage: '../../../images/profile.png',
-                    currentUser: false,
-                    message: 'test',
-                    sendTime: 'test',
-                    today: true,
-                    date: "2023.11.21",
-                    read: "1"),
-              ],
+                    read: "1",
+                  );
+                },
+              ),
             ),
           ),
           MessageEditor(),
