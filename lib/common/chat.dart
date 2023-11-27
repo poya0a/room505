@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:do_it/selected.dart';
+import 'package:room505/selected.dart';
 
 class Chat extends StatefulWidget {
-  final String keyValue;
+  final int seq;
   final String name;
   final String emoji;
   final bool inRoom;
 
-  const Chat({
-    required this.keyValue,
+  Chat({
+    required this.seq,
     required this.name,
     required this.emoji,
     required this.inRoom,

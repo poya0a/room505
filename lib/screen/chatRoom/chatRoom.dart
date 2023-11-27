@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:do_it/selected.dart';
-import 'package:do_it/created.dart';
-import 'package:do_it/mediaQuery.dart';
-import 'package:do_it/temp/tempClass.dart';
-import 'package:do_it/screen/chatRoom/chatBubbles.dart';
-import 'package:do_it/screen/chatRoom/MessageEditor.dart';
+import 'package:room505/selected.dart';
+import 'package:room505/created.dart';
+import 'package:room505/mediaQuery.dart';
+import 'package:room505/temp/tempClass.dart';
+import 'package:room505/screen/chatRoom/chatBubbles.dart';
+import 'package:room505/screen/chatRoom/MessageEditor.dart';
 
 class ChatRoom extends StatefulWidget {
   const ChatRoom({super.key});
@@ -25,6 +25,12 @@ class _ChatRoomState extends State<ChatRoom> {
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override

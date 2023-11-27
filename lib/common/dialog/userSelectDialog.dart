@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:do_it/config/palette.dart';
-import 'package:do_it/selected.dart';
-import 'package:do_it/common/dialog/createChatDialog.dart';
-import 'package:do_it/temp/tempClass.dart';
-import 'package:do_it/temp/tempUserList.dart';
+import 'package:room505/config/palette.dart';
+import 'package:room505/selected.dart';
+import 'package:room505/common/dialog/createChatDialog.dart';
+import 'package:room505/temp/tempClass.dart';
+import 'package:room505/temp/tempUserList.dart';
 
 class UserSelectDialog extends StatefulWidget {
   const UserSelectDialog({super.key});
@@ -84,10 +84,10 @@ class _UserSelectDialogState extends State<UserSelectDialog> {
     final addList = Provider.of<SelectedProvider>(context).getAddList();
     return Dialog(
       child: Container(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: Theme.of(context).backgroundColor,
-          borderRadius: BorderRadius.all(
+          borderRadius: const BorderRadius.all(
             Radius.circular(5.0),
           ),
         ),
@@ -193,7 +193,7 @@ class _UserSelectDialogState extends State<UserSelectDialog> {
                                 height: 15,
                                 decoration: BoxDecoration(
                                   color: Theme.of(context).canvasColor,
-                                  borderRadius: BorderRadius.all(
+                                  borderRadius: const BorderRadius.all(
                                     Radius.circular(5.0),
                                   ),
                                   border: Border.all(
@@ -201,7 +201,7 @@ class _UserSelectDialogState extends State<UserSelectDialog> {
                                     width: 1.0,
                                   ),
                                 ),
-                                child: Icon(
+                                child: const Icon(
                                   Icons.close,
                                   size: 12,
                                   color: Palette.borderColor,

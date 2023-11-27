@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:do_it/config/palette.dart';
+import 'package:room505/config/palette.dart';
 
 class FindId extends StatefulWidget {
   const FindId({Key? key}) : super(key: key);

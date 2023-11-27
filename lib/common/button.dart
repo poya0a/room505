@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:do_it/config/palette.dart';
+import 'package:room505/config/palette.dart';
 
 class Button extends StatefulWidget {
   final String text;

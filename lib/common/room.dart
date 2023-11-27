@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:do_it/selected.dart';
+import 'package:room505/selected.dart';
 
 class Room extends StatefulWidget {
-  final String keyValue;
+  final int seq;
   final String name;
   final String emoji;
 
   const Room({
-    required this.keyValue,
+    required this.seq,
     required this.name,
     required this.emoji,
   });
@@ -46,10 +46,10 @@ class _RoomState extends State<Room> {
               child: IconButton(
                 onPressed: () {
                   setState(() {
-                    if (selectedMenu == widget.keyValue) {
+                    if (selectedMenu == widget.name) {
                       selectedProvider.selectedMenu("");
                     } else {
-                      selectedProvider.selectedMenu(widget.keyValue);
+                      selectedProvider.selectedMenu(widget.name);
                     }
                   });
                 },
@@ -59,7 +59,7 @@ class _RoomState extends State<Room> {
                       : IconData(int.parse(widget.emoji, radix: 16),
                           fontFamily: 'EmojiFontFamily'),
                 ),
-                color: selectedMenu == widget.keyValue
+                color: selectedMenu == widget.name
                     ? Theme.of(context).textTheme.headline1!.color
                     : Theme.of(context).textTheme.bodyText1!.color,
               ),
@@ -84,7 +84,7 @@ class _RoomState extends State<Room> {
                     if (position != null) {
                       selectedProvider.selectedPosition(
                           position.dy, position.dx);
-                      selectedProvider.selectedMenu(widget.keyValue);
+                      selectedProvider.selectedMenu(widget.name);
                     }
                   },
                   child: Text(
@@ -93,7 +93,7 @@ class _RoomState extends State<Room> {
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                     style: TextStyle(
-                      color: selectedMenu == widget.keyValue
+                      color: selectedMenu == widget.name
                           ? Theme.of(context).textTheme.headline1!.color
                           : Theme.of(context).textTheme.bodyText1!.color,
                       fontSize: 14.0,

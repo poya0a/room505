@@ -1,4 +1,4 @@
-import 'package:do_it/config/palette.dart';
+import 'package:room505/config/palette.dart';
 import 'package:flutter/material.dart';
 
 class ButtonFooter extends StatefulWidget {

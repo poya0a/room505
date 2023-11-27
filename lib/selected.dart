@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:do_it/temp/tempClass.dart';
+import 'package:room505/temp/tempClass.dart';
 
 class SelectedProvider extends ChangeNotifier {
   String _menu = '';
+  int _room = 0;
   double _positionTop = 0.0;
   double _positionLeft = 0.0;
   List<AddList> addList = [];
@@ -15,8 +16,17 @@ class SelectedProvider extends ChangeNotifier {
     }
   }
 
+  void selectedRoom(int room) {
+    _room = room;
+    notifyListeners();
+  }
+
   String getMenu() {
     return _menu;
+  }
+
+  int getRoom() {
+    return _room;
   }
 
   void selectedPosition(double bottom, double left) {

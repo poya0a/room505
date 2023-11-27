@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:do_it/temp/tempClass.dart';
+import 'package:room505/temp/tempClass.dart';
 
 class CreatedProvider extends ChangeNotifier {
   List<RoomList> roomList = [];

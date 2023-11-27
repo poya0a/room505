@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
-import 'package:do_it/auth/login.dart';
-import 'package:do_it/screen/mainScreen.dart';
-import 'package:do_it/theme.dart';
-import 'package:do_it/selected.dart';
-import 'package:do_it/created.dart';
-import 'package:do_it/mediaQuery.dart';
+import 'package:room505/auth/login.dart';
+import 'package:room505/screen/mainScreen.dart';
+import 'package:room505/theme.dart';
+import 'package:room505/selected.dart';
+import 'package:room505/created.dart';
+import 'package:room505/mediaQuery.dart';
 
 void main() {
   runApp(

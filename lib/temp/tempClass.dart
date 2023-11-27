@@ -1,4 +1,4 @@
-import 'package:do_it/selected.dart';
+import 'package:room505/selected.dart';
 
 class UserList {
   final int seq;
@@ -39,18 +39,18 @@ class UserList {
 
 class RoomList {
   final int sortingNumber;
-  final String keyValue;
+  final int seq;
   final String name;
   final String emoji;
   final List<int> chatSeqList;
 
-  RoomList(this.sortingNumber, this.keyValue, this.name, this.emoji,
-      this.chatSeqList);
+  RoomList(
+      this.sortingNumber, this.seq, this.name, this.emoji, this.chatSeqList);
 
   Map<String, dynamic> toJson() {
     return {
       'sortingNumber': sortingNumber,
-      'keyValue': keyValue,
+      'seq': seq,
       'name': name,
       'emoji': emoji,
       'chatSeqList': chatSeqList,
@@ -58,7 +58,7 @@ class RoomList {
   }
 
   factory RoomList.fromJson(Map<String, dynamic> json) {
-    return RoomList(json['sortingNumber'], json['keyValue'], json['name'],
+    return RoomList(json['sortingNumber'], json['seq'], json['name'],
         json['emoji'], (json['chatSeqList'] as List<dynamic>).cast<int>());
   }
 }

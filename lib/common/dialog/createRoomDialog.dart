@@ -6,23 +6,21 @@ import 'package:flutter/services.dart';
 import 'package:room505/config/palette.dart';
 import 'package:room505/selected.dart';
 import 'package:room505/created.dart';
-import 'package:room505/common/dialog/userSelectDialog.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/foundation.dart' as foundation;
 import 'package:room505/temp/tempClass.dart';
 import 'package:room505/temp/randomNumber.dart';
 
-class CreateChat extends StatefulWidget {
-  const CreateChat({super.key});
+class CreateRoomDialog extends StatefulWidget {
+  const CreateRoomDialog({super.key});
 
   @override
-  State<CreateChat> createState() => _CreateChatState();
+  State<CreateRoomDialog> createState() => _CreateRoomDialogState();
 }
 
-class _CreateChatState extends State<CreateChat> {
-  List<ChatList> chatList = [];
-  List<ChatList> chatRoom = [];
-  List<AddList> addList = [];
+class _CreateRoomDialogState extends State<CreateRoomDialog> {
+  List<RoomList> roomList = [];
+  List<RoomList> room = [];
 
   bool emojiShowing = false;
   String emojiSelected = "";
@@ -34,25 +32,8 @@ class _CreateChatState extends State<CreateChat> {
   @override
   void initState() {
     super.initState();
-    chatList =
-        Provider.of<CreatedProvider>(context, listen: false).getChatList();
-    addList =
-        Provider.of<SelectedProvider>(context, listen: false).getAddList();
-
-    String names = addList.map((item) => item.name).join(', ');
-    bool isTitleContainedInSessionChats =
-        chatList.any((chat) => names == chat.name);
-    setState(() {
-      title = names;
-      textController.text = title;
-      if (isTitleContainedInSessionChats) {
-        _buttonEnabled = false;
-        errorMessage = "이미 사용 중인 이름입니다.";
-      } else {
-        _buttonEnabled = true;
-        errorMessage = "";
-      }
-    });
+    roomList =
+        Provider.of<CreatedProvider>(context, listen: false).getRoomList();
   }
 
   void _onEmojiSelected(Emoji emoji) {
@@ -69,15 +50,15 @@ class _CreateChatState extends State<CreateChat> {
     setState(() {
       title = value;
       bool isTitleEmpty = title.isEmpty;
-      bool isChatListEmpty = chatList.isEmpty;
-      bool isTitleContainedInSessionChats =
-          chatList.any((chat) => value == chat.name);
-
+      bool isChatListEmpty = roomList.isEmpty;
+      bool isTitleContainedInSessionRooms =
+          roomList.any((room) => value == room.name);
+      print(isTitleContainedInSessionRooms);
       if (isTitleEmpty) {
         _buttonEnabled = false;
       } else if (!isTitleEmpty &&
           !isChatListEmpty &&
-          isTitleContainedInSessionChats) {
+          isTitleContainedInSessionRooms) {
         errorMessage = "이미 사용 중인 이름입니다.";
         _buttonEnabled = false;
       } else {
@@ -87,64 +68,31 @@ class _CreateChatState extends State<CreateChat> {
     });
   }
 
-  void _previousStep(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return UserSelectDialog();
-      },
-    );
-  }
-
-  void _createChat() async {
-    final getRoom =
-        Provider.of<SelectedProvider>(context, listen: false).getRoom();
-    final seq = generateRandomNumber();
+  void _createRoom() async {
     int sotingNumber = 0;
+    final seq = generateRandomNumber();
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    List<String>? chatsStringList = prefs.getStringList('chatList');
+    List<String>? roomsStringList = prefs.getStringList('roomList');
 
-    if (chatsStringList != null) {
-      sotingNumber = chatsStringList.length + 1;
-      chatRoom = chatsStringList
-          .map((chatRoomJson) => ChatList.fromJson(json.decode(chatRoomJson)))
+    if (roomsStringList != null) {
+      sotingNumber = roomsStringList.length + 1;
+      room = roomsStringList
+          .map((roomJson) => RoomList.fromJson(json.decode(roomJson)))
           .toList();
     }
 
-    ChatList newChatRoom =
-        ChatList(seq, sotingNumber, title, emojiSelected, addList);
-    chatRoom.add(newChatRoom);
+    RoomList newRoom = RoomList(sotingNumber, seq, title, emojiSelected, []);
+    room.add(newRoom);
 
-    List<String> updatedChatRoomsStringList =
-        chatRoom.map((chatRoom) => json.encode(chatRoom.toJson())).toList();
-    prefs.setStringList('chatList', updatedChatRoomsStringList);
-
-    List<String>? roomsStringList = prefs.getStringList('roomList');
-
-    if (roomsStringList != null && getRoom != 0) {
-      for (String roomJson in roomsStringList) {
-        Map<String, dynamic> roomMap = json.decode(roomJson);
-        int roomSeq = roomMap['seq'];
-
-        if (roomSeq == getRoom) {
-          List<int> chatSeqList = List<int>.from(roomMap['chatSeqList']);
-
-          chatSeqList.add(seq);
-          roomMap['chatSeqList'] = chatSeqList;
-          roomsStringList[roomsStringList.indexOf(roomJson)] =
-              json.encode(roomMap);
-          prefs.setStringList('roomList', roomsStringList);
-        }
-      }
-    }
+    List<String> updatedRoomsStringList =
+        room.map((room) => json.encode(room.toJson())).toList();
+    prefs.setStringList('roomList', updatedRoomsStringList);
 
     setState(() {
-      Provider.of<SelectedProvider>(context, listen: false).resetAddList();
       Navigator.of(context).pop();
       Provider.of<CreatedProvider>(context, listen: false).loadRoomList();
-      Provider.of<CreatedProvider>(context, listen: false).loadChatList();
     });
   }
 
@@ -152,7 +100,7 @@ class _CreateChatState extends State<CreateChat> {
   Widget build(BuildContext context) {
     return Dialog(
       child: Container(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Theme.of(context).backgroundColor,
           borderRadius: const BorderRadius.all(
@@ -169,7 +117,6 @@ class _CreateChatState extends State<CreateChat> {
                     icon: Icon(Icons.arrow_back_ios),
                     onPressed: () {
                       Navigator.of(context).pop();
-                      _previousStep(context);
                     },
                   ),
                   Positioned(
@@ -185,7 +132,7 @@ class _CreateChatState extends State<CreateChat> {
                       child: TextButton(
                         onPressed: _buttonEnabled
                             ? () {
-                                _createChat();
+                                _createRoom();
                               }
                             : null,
                         child: Text(
@@ -218,7 +165,7 @@ class _CreateChatState extends State<CreateChat> {
                     },
                     icon: Icon(
                       emojiSelected == ""
-                          ? Icons.chat_bubble
+                          ? Icons.view_headline
                           : IconData(int.parse(emojiSelected, radix: 16),
                               fontFamily: 'EmojiFontFamily'),
                       color: Theme.of(context).textTheme.bodyText2!.color,
@@ -233,7 +180,7 @@ class _CreateChatState extends State<CreateChat> {
                     controller: textController,
                     inputFormatters: [LengthLimitingTextInputFormatter(80)],
                     decoration: const InputDecoration(
-                      labelText: "채팅 방 이름",
+                      labelText: "방 이름",
                       labelStyle:
                           TextStyle(fontSize: 12, color: Palette.subColor),
                       enabledBorder: OutlineInputBorder(
@@ -248,7 +195,7 @@ class _CreateChatState extends State<CreateChat> {
                           Radius.circular(5.0),
                         ),
                       ),
-                      hintText: "채팅 방 이름을 입력해 주세요.",
+                      hintText: "방 이름을 입력해 주세요.",
                       hintStyle:
                           TextStyle(fontSize: 12, color: Palette.subColor),
                       contentPadding: EdgeInsets.all(10),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:do_it/config/palette.dart';
+import 'package:room505/config/palette.dart';
 
 class CustomTextFormField extends StatefulWidget {
   final int keyValue;

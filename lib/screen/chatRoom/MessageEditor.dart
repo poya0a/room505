@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
-import 'package:do_it/created.dart';
+import 'package:room505/created.dart';
 
 class MessageEditor extends StatefulWidget {
   const MessageEditor({super.key});
@@ -15,6 +15,7 @@ class MessageEditor extends StatefulWidget {
 class _MessageEditorState extends State<MessageEditor> {
   final QuillController _controller = QuillController.basic();
   final FocusNode _focusNode = FocusNode();
+  final FocusNode _keyboardFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
   bool toolVisibility = true;
   bool isScrollable = false;
@@ -37,16 +38,17 @@ class _MessageEditorState extends State<MessageEditor> {
   void initState() {
     super.initState();
     _controller.addListener(() {
-      final plainText = _controller.document.toPlainText();
-      if (plainText.endsWith('\n')) {
-        sendMessage();
-      }
-      final lineCount = plainText.split('\n').length - 1;
+      final text = _controller.document.toPlainText();
+      final lineCount = text.split('\n').length - 1;
       final calculatedHeight = lineCount * 38.0;
       setState(() {
         textFieldHeight = calculatedHeight <= 190 ? calculatedHeight : 190;
         isScrollable = lineCount > 5;
       });
+
+      // if (lineCount > 1 && text.endsWith('\n')) {
+      //   sendMessage();
+      // }
     });
   }
 
@@ -99,32 +101,32 @@ class _MessageEditorState extends State<MessageEditor> {
                 padding: const EdgeInsets.all(10.0),
                 constraints:
                     const BoxConstraints(minHeight: 38.0, maxHeight: 190.0),
-                // child: RawKeyboardListener(
-                //   focusNode: _focusNode,
-                //   onKey: (event) {
-                //     if (event is RawKeyDownEvent &&
-                //         event.logicalKey == LogicalKeyboardKey.enter &&
-                //         !event.isShiftPressed) {
-                //       sendMessage();
-                //     }
-                //   },
-                child: NotificationListener<SizeChangedLayoutNotification>(
-                  onNotification: (notification) {
-                    WidgetsBinding.instance!.addPostFrameCallback((_) {
-                      _scrollController
-                          .jumpTo(_scrollController.position.maxScrollExtent);
-                    });
-                    return true;
+                child: RawKeyboardListener(
+                  focusNode: _keyboardFocusNode,
+                  onKey: (event) {
+                    if (event is RawKeyDownEvent &&
+                        event.logicalKey == LogicalKeyboardKey.enter &&
+                        !event.isShiftPressed) {
+                      sendMessage();
+                    }
                   },
-                  child: QuillEditor.basic(
-                    scrollController: _scrollController,
-                    focusNode: _focusNode,
-                    configurations: const QuillEditorConfigurations(
-                      readOnly: false,
+                  child: NotificationListener<SizeChangedLayoutNotification>(
+                    onNotification: (notification) {
+                      WidgetsBinding.instance!.addPostFrameCallback((_) {
+                        _scrollController
+                            .jumpTo(_scrollController.position.maxScrollExtent);
+                      });
+                      return true;
+                    },
+                    child: QuillEditor.basic(
+                      scrollController: _scrollController,
+                      focusNode: _focusNode,
+                      configurations: const QuillEditorConfigurations(
+                        readOnly: false,
+                      ),
                     ),
                   ),
                 ),
-                // ),
               ),
               Stack(
                 children: [

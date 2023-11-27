@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:do_it/config/palette.dart';
+import 'package:room505/config/palette.dart';
 import 'package:flutter_chat_bubble/bubble_type.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:flutter_chat_bubble/clippers/chat_bubble_clipper_5.dart';

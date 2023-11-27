@@ -1,7 +1,9 @@
+import 'package:room505/common/dialog/createRoomDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:do_it/selected.dart';
-import 'package:do_it/common/dialog/userSelectDialog.dart';
+import 'package:room505/selected.dart';
+import 'package:room505/created.dart';
+import 'package:room505/common/dialog/userSelectDialog.dart';
 
 class OverlayMenu extends StatefulWidget {
   const OverlayMenu({super.key});
@@ -19,7 +21,14 @@ class _OverlayMenuState extends State<OverlayMenu> {
     {
       "keyValue": "roomCreate",
       "text": "방 생성",
-      "onTap": () {},
+      "onTap": (context) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return CreateRoomDialog();
+          },
+        );
+      },
     },
     {
       "keyValue": "chatCreate",
@@ -28,7 +37,11 @@ class _OverlayMenuState extends State<OverlayMenu> {
         showDialog(
           context: context,
           builder: (BuildContext context) {
-            return UserSelectDialog();
+            return Builder(
+              builder: (BuildContext context) {
+                return UserSelectDialog();
+              },
+            );
           },
         );
       },
@@ -97,6 +110,19 @@ class _OverlayMenuState extends State<OverlayMenu> {
     double top = selectedProvider.getPositionTop();
     double left = selectedProvider.getPositionLeft();
 
+    final getMenu = Provider.of<SelectedProvider>(context).getMenu();
+    final roomList = Provider.of<CreatedProvider>(context).getRoomList();
+
+    int roomSeq;
+
+    for (var room in roomList) {
+      if (room.name == getMenu) {
+        roomSeq = room.seq;
+        Provider.of<SelectedProvider>(context).selectedRoom(roomSeq);
+        break;
+      }
+    }
+
     List<Map<String, dynamic>> selectedMenu = [];
     if (menuHover == 'create') {
       selectedMenu = createMenu;
@@ -133,7 +159,7 @@ class _OverlayMenuState extends State<OverlayMenu> {
             width: 200,
             height: 101,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(
+              borderRadius: const BorderRadius.all(
                 Radius.circular(5.0),
               ),
               border: Border.all(
@@ -205,7 +231,7 @@ class _OverlayMenuState extends State<OverlayMenu> {
                     color: menuHover == "display"
                         ? Theme.of(context).shadowColor
                         : Theme.of(context).scaffoldBackgroundColor,
-                    child: Stack(
+                    child: const Stack(
                       children: [
                         Text("표시 및 정렬"),
                       ],

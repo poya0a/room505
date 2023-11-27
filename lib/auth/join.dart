@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:flutter/services.dart';
-import 'package:do_it/config/palette.dart';
-import 'package:do_it/common/customTextFromField.dart';
-import 'package:do_it/common/AuthNumberField.dart';
-import 'package:do_it/common/dupleCheckField.dart';
-import 'package:do_it/common/buttonFooter.dart';
+import 'package:room505/config/palette.dart';
+import 'package:room505/common/customTextFromField.dart';
+import 'package:room505/common/AuthNumberField.dart';
+import 'package:room505/common/dupleCheckField.dart';
+import 'package:room505/common/buttonFooter.dart';
 
 class Join extends StatefulWidget {
   const Join({Key? key}) : super(key: key);
