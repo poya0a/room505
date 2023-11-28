@@ -8,6 +8,7 @@ class SelectedProvider extends ChangeNotifier {
   double _positionLeft = 0.0;
   List<AddList> addList = [];
   List<UserList> userlist = [];
+  String _setMenu = '';
 
   void selectedMenu(String menu) {
     if (_menu != menu) {
@@ -60,6 +61,17 @@ class SelectedProvider extends ChangeNotifier {
   void resetAddList() {
     addList = [];
     notifyListeners();
+  }
+
+  void selectedSet(String setMenu) {
+    if (_setMenu != setMenu) {
+      _setMenu = setMenu;
+      notifyListeners();
+    }
+  }
+
+  String getSetMenu() {
+    return _setMenu;
   }
 }
 

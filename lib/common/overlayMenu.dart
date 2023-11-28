@@ -1,9 +1,9 @@
-import 'package:room505/common/dialog/createRoomDialog.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:room505/selected.dart';
 import 'package:room505/created.dart';
 import 'package:room505/common/dialog/userSelectDialog.dart';
+import 'package:room505/common/dialog/createRoomDialog.dart';
 
 class OverlayMenu extends StatefulWidget {
   const OverlayMenu({super.key});
@@ -179,7 +179,7 @@ class _OverlayMenuState extends State<OverlayMenu> {
                   child: Container(
                     width: 200,
                     height: 33,
-                    padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
+                    padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
                     decoration: BoxDecoration(
                       border: Border(
                         bottom: BorderSide(
@@ -191,7 +191,7 @@ class _OverlayMenuState extends State<OverlayMenu> {
                           ? Theme.of(context).shadowColor
                           : Theme.of(context).scaffoldBackgroundColor,
                     ),
-                    child: Text("생성"),
+                    child: const Text("생성"),
                   ),
                 ),
                 MouseRegion(
@@ -203,7 +203,7 @@ class _OverlayMenuState extends State<OverlayMenu> {
                   child: Container(
                     width: 200,
                     height: 33,
-                    padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
+                    padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
                     decoration: BoxDecoration(
                       border: Border(
                         bottom: BorderSide(
@@ -215,7 +215,7 @@ class _OverlayMenuState extends State<OverlayMenu> {
                           ? Theme.of(context).shadowColor
                           : Theme.of(context).scaffoldBackgroundColor,
                     ),
-                    child: Text("관리"),
+                    child: const Text("관리"),
                   ),
                 ),
                 MouseRegion(
@@ -227,7 +227,7 @@ class _OverlayMenuState extends State<OverlayMenu> {
                   child: Container(
                     width: 200,
                     height: 33,
-                    padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
+                    padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
                     color: menuHover == "display"
                         ? Theme.of(context).shadowColor
                         : Theme.of(context).scaffoldBackgroundColor,

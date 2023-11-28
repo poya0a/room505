@@ -190,11 +190,19 @@ class _UserMenuState extends State<UserMenu> {
                               final selectedMenu =
                                   Provider.of<SelectedProvider>(context)
                                       .getMenu();
-                              bool showChatList = selectedMenu == room.name;
+                              List<ChatList> selectedChat =
+                                  chatList.where((chat) {
+                                return room.chatSeqList.contains(chat.seq) &&
+                                    chat.name == selectedMenu;
+                              }).toList();
+
                               List<ChatList> includedChats =
                                   chatList.where((chat) {
                                 return room.chatSeqList.contains(chat.seq);
                               }).toList();
+
+                              bool showChatList = selectedMenu == room.name ||
+                                  selectedChat.isNotEmpty;
 
                               return Column(
                                 children: [

@@ -7,7 +7,7 @@ ThemeData lightTheme = ThemeData(
   scaffoldBackgroundColor: Palette.backgroundColor,
   dialogBackgroundColor: Palette.chatBackground,
   shadowColor: Palette.borderColor,
-  textTheme: TextTheme(
+  textTheme: const TextTheme(
     headline1: TextStyle(color: Palette.blueColor),
     bodyText1: TextStyle(color: Palette.text),
     bodyText2: TextStyle(color: Palette.textSub),
@@ -15,12 +15,12 @@ ThemeData lightTheme = ThemeData(
 );
 
 ThemeData darkTheme = ThemeData.dark().copyWith(
-  canvasColor: Color.fromRGBO(11, 11, 49, 1),
-  primaryColorLight: Color.fromRGBO(11, 11, 49, .5),
+  canvasColor: const Color.fromRGBO(11, 11, 49, 1),
+  primaryColorLight: const Color.fromRGBO(11, 11, 49, .5),
   scaffoldBackgroundColor: Palette.text,
   dialogBackgroundColor: Palette.text2,
   shadowColor: Palette.textSub,
-  textTheme: TextTheme(
+  textTheme: const TextTheme(
     headline1: TextStyle(color: Palette.subColor),
     bodyText1: TextStyle(color: Palette.backgroundColor),
     bodyText2: TextStyle(color: Palette.chatBackground),

@@ -13,6 +13,8 @@ import 'package:room505/screen/menu/connect.dart';
 import 'package:room505/screen/menu/document.dart';
 import 'package:room505/screen/menu/file.dart';
 import 'package:room505/screen/chatRoom/chatRoom.dart';
+import 'package:room505/screen/setting/settingMenu.dart';
+import 'package:room505/screen/setting/settingProfile.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -31,6 +33,7 @@ class _MainScreenState extends State<MainScreen> {
     final _width = Provider.of<MediaQueryProvider>(context).getUseMenuWidth();
     final selectedProvider = Provider.of<SelectedProvider>(context);
     String selectedMenu = selectedProvider.getMenu();
+    String selectedSetMenu = selectedProvider.getSetMenu();
     double top = selectedProvider.getPositionTop();
     double left = selectedProvider.getPositionLeft();
     final chatList = Provider.of<CreatedProvider>(context).getChatList();
@@ -39,7 +42,7 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).dialogBackgroundColor,
+        backgroundColor: Theme.of(context).shadowColor,
         title: Center(
           child: Text(
             'ROOM 505',
@@ -51,7 +54,15 @@ class _MainScreenState extends State<MainScreen> {
         ),
         actions: [
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              if (selectedSetMenu == "settingProfile") {
+                Provider.of<SelectedProvider>(context, listen: false)
+                    .selectedSet("");
+              } else {
+                Provider.of<SelectedProvider>(context, listen: false)
+                    .selectedSet("settingProfile");
+              }
+            },
             child: Stack(
               children: [
                 Container(
@@ -74,7 +85,7 @@ class _MainScreenState extends State<MainScreen> {
                   child: Container(
                     width: 10,
                     height: 10,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       color: Palette.greenColor,
                     ),
@@ -86,8 +97,12 @@ class _MainScreenState extends State<MainScreen> {
         ],
         leading: GestureDetector(
           onTap: () {
-            if (screenWidth < 800) {
-              setState(() {});
+            if (selectedSetMenu == "settingMenu") {
+              Provider.of<SelectedProvider>(context, listen: false)
+                  .selectedSet("");
+            } else {
+              Provider.of<SelectedProvider>(context, listen: false)
+                  .selectedSet("settingMenu");
             }
           },
           child: Padding(
@@ -120,7 +135,7 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                       ),
                     ),
-                    child: UserMenu(),
+                    child: const UserMenu(),
                   ),
                   Positioned(
                     right: 0,
@@ -155,14 +170,18 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                     ),
                   ),
-                  if (top != 0.0 && left != 0.0 && _width != 0) OverlayMenu(),
+                  if (selectedSetMenu == "settingMenu") const SettingMenu(),
+                  if (selectedSetMenu == "settingProfile")
+                    const SettingProfile(),
+                  if (top != 0.0 && left != 0.0 && _width != 0)
+                    const OverlayMenu(),
                 ],
               ),
-              if (selectedMenu == "document") Document(),
-              if (selectedMenu == "file") File(),
-              if (selectedMenu == "connect") Connect(),
-              if (selectedMenu == "more") More(),
-              if (selectedChat) ChatRoom(),
+              if (selectedMenu == "document") const Document(),
+              if (selectedMenu == "file") const File(),
+              if (selectedMenu == "connect") const Connect(),
+              if (selectedMenu == "more") const More(),
+              if (selectedChat) const ChatRoom(),
             ],
           ),
         ),

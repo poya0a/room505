@@ -65,10 +65,6 @@ class _ChatRoomState extends State<ChatRoom> {
                   color: Theme.of(context).shadowColor,
                   width: 1,
                 ),
-                top: BorderSide(
-                  color: Theme.of(context).shadowColor,
-                  width: 1,
-                ),
               ),
             ),
             child: SizedBox(
