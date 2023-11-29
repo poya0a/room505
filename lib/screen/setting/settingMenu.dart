@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:room505/selected.dart';
+import 'package:room505/created.dart';
+import 'package:room505/main.dart';
 
 class SettingMenu extends StatefulWidget {
   const SettingMenu({super.key});
@@ -57,22 +60,40 @@ class _SettingMenuState extends State<SettingMenu> {
                       menuHover = "logout";
                     });
                   },
-                  child: Container(
-                    width: 80,
-                    height: 33,
-                    padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Theme.of(context).shadowColor,
-                          width: 1,
+                  child: GestureDetector(
+                    onTap: () async {
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      prefs.remove('user');
+                      setState(() {
+                        Provider.of<CreatedProvider>(context, listen: false)
+                            .loadUserInfo();
+                        Provider.of<SelectedProvider>(context, listen: false)
+                            .selectedSet("");
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (context) => const App(),
+                          ),
+                        );
+                      });
+                    },
+                    child: Container(
+                      width: 80,
+                      height: 33,
+                      padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Theme.of(context).shadowColor,
+                            width: 1,
+                          ),
                         ),
+                        color: menuHover == "logout"
+                            ? Theme.of(context).shadowColor
+                            : Theme.of(context).scaffoldBackgroundColor,
                       ),
-                      color: menuHover == "logout"
-                          ? Theme.of(context).shadowColor
-                          : Theme.of(context).scaffoldBackgroundColor,
+                      child: const Text("로그아웃"),
                     ),
-                    child: const Text("로그아웃"),
                   ),
                 ),
                 MouseRegion(
@@ -109,17 +130,9 @@ class _SettingMenuState extends State<SettingMenu> {
                     width: 80,
                     height: 33,
                     padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Theme.of(context).shadowColor,
-                          width: 1,
-                        ),
-                      ),
-                      color: menuHover == "end"
-                          ? Theme.of(context).shadowColor
-                          : Theme.of(context).scaffoldBackgroundColor,
-                    ),
+                    color: menuHover == "end"
+                        ? Theme.of(context).shadowColor
+                        : Theme.of(context).scaffoldBackgroundColor,
                     child: const Text("종료"),
                   ),
                 ),

@@ -4,9 +4,23 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:room505/temp/tempClass.dart';
 
 class CreatedProvider extends ChangeNotifier {
+  List<UserList> userInfo = [];
   List<RoomList> roomList = [];
   List<ChatList> chatList = [];
   List<String> chat = [];
+
+  void loadUserInfo() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? userJson = prefs.getStringList('user');
+    if (userJson != null) {
+      userInfo = userJson
+          .map((jsonString) => UserList.fromJson(jsonDecode(jsonString)))
+          .toList();
+    } else {
+      userInfo = [];
+    }
+    notifyListeners();
+  }
 
   void loadRoomList() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -37,6 +51,10 @@ class CreatedProvider extends ChangeNotifier {
       chat = chatJson;
     }
     notifyListeners();
+  }
+
+  List<UserList> getUserInfo() {
+    return userInfo;
   }
 
   List<RoomList> getRoomList() {

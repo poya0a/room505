@@ -5,7 +5,9 @@ import 'package:room505/config/palette.dart';
 import 'package:provider/provider.dart';
 import 'package:room505/selected.dart';
 import 'package:room505/created.dart';
+import 'package:room505/temp/tempClass.dart';
 import 'package:room505/mediaQuery.dart';
+import 'package:room505/auth/login.dart';
 import 'package:room505/screen/user/userMenu.dart';
 import 'package:room505/common/overlayMenu.dart';
 import 'package:room505/screen/menu/More.dart';
@@ -28,6 +30,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    List<UserList> user = Provider.of<CreatedProvider>(context).getUserInfo();
     MediaQueryData queryData = MediaQuery.of(context);
     double screenWidth = queryData.size.width;
     final _width = Provider.of<MediaQueryProvider>(context).getUseMenuWidth();
@@ -73,7 +76,9 @@ class _MainScreenState extends State<MainScreen> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(5.0),
                       child: Image.asset(
-                        '../../images/profile.png',
+                        user.isNotEmpty && user[0].image.isNotEmpty
+                            ? user[0].image
+                            : '../../images/profile.png',
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -85,9 +90,11 @@ class _MainScreenState extends State<MainScreen> {
                   child: Container(
                     width: 10,
                     height: 10,
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Palette.greenColor,
+                      color: user.isNotEmpty && user[0].status
+                          ? Palette.greenColor
+                          : Palette.textSub,
                     ),
                   ),
                 ),

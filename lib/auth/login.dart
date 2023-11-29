@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:room505/common/customTextFromField.dart';
 import 'package:room505/main.dart';
+import 'package:provider/provider.dart';
+import 'package:room505/created.dart';
+import 'package:room505/temp/tempClass.dart';
+import 'package:room505/temp/tempUserList.dart';
 import 'package:room505/auth/join.dart';
 import 'package:room505/auth/findId.dart';
 import 'package:room505/auth/findPassword.dart';
@@ -20,6 +25,7 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   bool showSpinner = false;
   final _formKey = GlobalKey<FormState>();
+  final List<UserList> users = generateTempUserList();
   String userEmail = '';
   String userPassword = '';
 
@@ -33,18 +39,34 @@ class _LoginState extends State<Login> {
   void handleButtonLogin() async {
     _tryValidation();
     try {
-      if (userEmail != "" && userPassword != "") {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('userId', userEmail);
-        _formKey.currentState!.reset();
+      if (userEmail.isNotEmpty && userPassword.isNotEmpty) {
+        List<UserList> findUsers = [];
 
-        setState(() {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => App(),
-            ),
-          );
-        });
+        for (var user in users) {
+          if (user.email == userEmail) {
+            findUsers.add(user);
+          }
+        }
+        if (findUsers.isNotEmpty) {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+
+          List<String> findUsersJson =
+              findUsers.map((user) => jsonEncode(user.toJson())).toList();
+          await prefs.setStringList('user', findUsersJson);
+          _formKey.currentState!.reset();
+
+          setState(() {
+            Provider.of<CreatedProvider>(context, listen: false).loadUserInfo();
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => const App(),
+              ),
+            );
+          });
+        } else {
+          // 얼럿
+          print('아이디와 비밀번호를 확인해 주세요.');
+        }
       }
     } catch (e) {
       print(e);

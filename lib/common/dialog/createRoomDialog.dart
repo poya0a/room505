@@ -34,6 +34,8 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
     super.initState();
     roomList =
         Provider.of<CreatedProvider>(context, listen: false).getRoomList();
+    Provider.of<SelectedProvider>(context, listen: false)
+        .selectedPosition(0.0, 0.0);
   }
 
   void _onEmojiSelected(Emoji emoji) {

@@ -72,6 +72,8 @@ class _UserSelectDialogState extends State<UserSelectDialog> {
           .toList();
       _buttonEnabled = true;
     }
+    Provider.of<SelectedProvider>(context, listen: false)
+        .selectedPosition(0.0, 0.0);
   }
 
   @override
