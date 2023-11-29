@@ -64,8 +64,22 @@ class _LoginState extends State<Login> {
             );
           });
         } else {
-          // 얼럿
-          print('아이디와 비밀번호를 확인해 주세요.');
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                content: const Text('아이디와 비밀번호를 확인해 주세요.'),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('닫기'),
+                  ),
+                ],
+              );
+            },
+          );
         }
       }
     } catch (e) {

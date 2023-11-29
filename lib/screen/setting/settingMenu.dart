@@ -15,6 +15,50 @@ class SettingMenu extends StatefulWidget {
 class _SettingMenuState extends State<SettingMenu> {
   String menuHover = "";
 
+  void logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove('user');
+    setState(() {
+      Provider.of<CreatedProvider>(context, listen: false).loadUserInfo();
+      Provider.of<SelectedProvider>(context, listen: false).selectedSet("");
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const App(),
+        ),
+      );
+    });
+  }
+
+  // 앱 종료 함수
+  void _exitApp(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('앱 종료'),
+          content: const Text('앱을 종료하시겠습니까?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('취소'),
+            ),
+            TextButton(
+              onPressed: () {
+                logout();
+                Provider.of<SelectedProvider>(context).setExitApp(true);
+                Provider.of<SelectedProvider>(context, listen: false)
+                    .getExitApp();
+              },
+              child: const Text('종료'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -61,21 +105,8 @@ class _SettingMenuState extends State<SettingMenu> {
                     });
                   },
                   child: GestureDetector(
-                    onTap: () async {
-                      SharedPreferences prefs =
-                          await SharedPreferences.getInstance();
-                      prefs.remove('user');
-                      setState(() {
-                        Provider.of<CreatedProvider>(context, listen: false)
-                            .loadUserInfo();
-                        Provider.of<SelectedProvider>(context, listen: false)
-                            .selectedSet("");
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (context) => const App(),
-                          ),
-                        );
-                      });
+                    onTap: () {
+                      logout();
                     },
                     child: Container(
                       width: 80,
@@ -102,38 +133,50 @@ class _SettingMenuState extends State<SettingMenu> {
                       menuHover = "close";
                     });
                   },
-                  child: Container(
-                    width: 80,
-                    height: 33,
-                    padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Theme.of(context).shadowColor,
-                          width: 1,
+                  child: GestureDetector(
+                    onTap: () {
+                      Provider.of<SelectedProvider>(context).setExitApp(true);
+                      Provider.of<SelectedProvider>(context, listen: false)
+                          .getExitApp();
+                    },
+                    child: Container(
+                      width: 80,
+                      height: 33,
+                      padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Theme.of(context).shadowColor,
+                            width: 1,
+                          ),
                         ),
+                        color: menuHover == "close"
+                            ? Theme.of(context).shadowColor
+                            : Theme.of(context).scaffoldBackgroundColor,
                       ),
-                      color: menuHover == "close"
-                          ? Theme.of(context).shadowColor
-                          : Theme.of(context).scaffoldBackgroundColor,
+                      child: const Text("닫기"),
                     ),
-                    child: const Text("닫기"),
                   ),
                 ),
                 MouseRegion(
                   onEnter: (_) {
                     setState(() {
-                      menuHover = "end";
+                      menuHover = "exit";
                     });
                   },
-                  child: Container(
-                    width: 80,
-                    height: 33,
-                    padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                    color: menuHover == "end"
-                        ? Theme.of(context).shadowColor
-                        : Theme.of(context).scaffoldBackgroundColor,
-                    child: const Text("종료"),
+                  child: GestureDetector(
+                    onTap: () async {
+                      _exitApp(context);
+                    },
+                    child: Container(
+                      width: 80,
+                      height: 33,
+                      padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                      color: menuHover == "exit"
+                          ? Theme.of(context).shadowColor
+                          : Theme.of(context).scaffoldBackgroundColor,
+                      child: const Text("종료"),
+                    ),
                   ),
                 ),
               ],

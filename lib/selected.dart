@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:room505/temp/tempClass.dart';
 
 class SelectedProvider extends ChangeNotifier {
+  bool _exitApp = false;
   String _menu = '';
   int _room = 0;
   double _positionTop = 0.0;
@@ -9,6 +10,11 @@ class SelectedProvider extends ChangeNotifier {
   List<AddList> addList = [];
   List<UserList> userlist = [];
   String _setMenu = '';
+
+  void setExitApp(bool exitApp) {
+    _exitApp = exitApp;
+    notifyListeners();
+  }
 
   void selectedMenu(String menu) {
     if (_menu != menu) {
@@ -28,6 +34,10 @@ class SelectedProvider extends ChangeNotifier {
 
   int getRoom() {
     return _room;
+  }
+
+  bool getExitApp() {
+    return _exitApp;
   }
 
   void selectedPosition(double bottom, double left) {

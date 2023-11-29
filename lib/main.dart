@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:html' as html;
 import 'package:provider/provider.dart';
 import 'package:room505/auth/login.dart';
 import 'package:room505/screen/mainScreen.dart';
@@ -27,6 +28,11 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool exitApp =
+        Provider.of<SelectedProvider>(context, listen: false).getExitApp();
+    if (exitApp) {
+      html.window.close();
+    }
     List<UserList> user = Provider.of<CreatedProvider>(context).getUserInfo();
     return Consumer4<ThemeProvider, SelectedProvider, CreatedProvider,
             MediaQueryProvider>(
