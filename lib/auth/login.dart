@@ -183,7 +183,7 @@ class _LoginState extends State<Login> {
                             padding: EdgeInsets.only(top: 90, left: 20),
                             child: Center(
                               child: Image.asset(
-                                '../../images/logo_transparent.png',
+                                'images/logo_transparent.png',
                                 width: 120,
                                 height: 120,
                               ),

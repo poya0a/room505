@@ -116,7 +116,7 @@ class _UserMenuState extends State<UserMenu> {
                               top: -5,
                               right: 0,
                               child: IconButton(
-                                icon: Icon(Icons.send),
+                                icon: Icon(Icons.add),
                                 color: Theme.of(context)
                                     .textTheme
                                     .bodyText1!
@@ -179,81 +179,79 @@ class _UserMenuState extends State<UserMenu> {
                   // 채팅룸
                   Container(
                     padding: const EdgeInsets.all(10),
-                    child: Expanded(
-                      child: Column(
-                        children: [
-                          ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: roomList.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              final room = roomList[index];
-                              final selectedMenu =
-                                  Provider.of<SelectedProvider>(context)
-                                      .getMenu();
-                              List<ChatList> selectedChat =
-                                  chatList.where((chat) {
-                                return room.chatSeqList.contains(chat.seq) &&
-                                    chat.name == selectedMenu;
-                              }).toList();
+                    // width: MediaQuery.of(context).size.width,
+                    child: Column(
+                      children: [
+                        ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: roomList.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            final room = roomList[index];
+                            final selectedMenu =
+                                Provider.of<SelectedProvider>(context)
+                                    .getMenu();
+                            List<ChatList> selectedChat =
+                                chatList.where((chat) {
+                              return room.chatSeqList.contains(chat.seq) &&
+                                  chat.name == selectedMenu;
+                            }).toList();
 
-                              List<ChatList> includedChats =
-                                  chatList.where((chat) {
-                                return room.chatSeqList.contains(chat.seq);
-                              }).toList();
+                            List<ChatList> includedChats =
+                                chatList.where((chat) {
+                              return room.chatSeqList.contains(chat.seq);
+                            }).toList();
 
-                              bool showChatList = selectedMenu == room.name ||
-                                  selectedChat.isNotEmpty;
+                            bool showChatList = selectedMenu == room.name ||
+                                selectedChat.isNotEmpty;
 
+                            return Column(
+                              children: [
+                                Room(
+                                  seq: room.seq,
+                                  name: room.name,
+                                  emoji: room.emoji,
+                                ),
+                                if (showChatList)
+                                  Column(
+                                    children: includedChats.map((chat) {
+                                      return Chat(
+                                        seq: chat.seq,
+                                        name: chat.name,
+                                        emoji: chat.emoji,
+                                        inRoom: true,
+                                      );
+                                    }).toList(),
+                                  ),
+                              ],
+                            );
+                          },
+                        ),
+                        ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: chatList.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            final chat = chatList[index];
+                            bool isNotIncludedInAnyRoom = !roomList.any(
+                                (room) => room.chatSeqList.contains(chat.seq));
+
+                            if (isNotIncludedInAnyRoom) {
                               return Column(
                                 children: [
-                                  Room(
-                                    seq: room.seq,
-                                    name: room.name,
-                                    emoji: room.emoji,
+                                  Chat(
+                                    seq: chat.seq,
+                                    name: chat.name,
+                                    emoji: chat.emoji,
+                                    inRoom: false,
                                   ),
-                                  if (showChatList)
-                                    Column(
-                                      children: includedChats.map((chat) {
-                                        return Chat(
-                                          seq: chat.seq,
-                                          name: chat.name,
-                                          emoji: chat.emoji,
-                                          inRoom: true,
-                                        );
-                                      }).toList(),
-                                    ),
+                                  // Column(children: includedChatWidgets),
                                 ],
                               );
-                            },
-                          ),
-                          ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: chatList.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              final chat = chatList[index];
-                              bool isNotIncludedInAnyRoom = !roomList.any(
-                                  (room) =>
-                                      room.chatSeqList.contains(chat.seq));
-
-                              if (isNotIncludedInAnyRoom) {
-                                return Column(
-                                  children: [
-                                    Chat(
-                                      seq: chat.seq,
-                                      name: chat.name,
-                                      emoji: chat.emoji,
-                                      inRoom: false,
-                                    ),
-                                    // Column(children: includedChatWidgets),
-                                  ],
-                                );
-                              } else {
-                                return const SizedBox();
-                              }
-                            },
-                          ),
-                        ],
-                      ),
+                            } else {
+                              return const SizedBox();
+                            }
+                          },
+                        ),
+                      ],
                     ),
                   ),
                 ],

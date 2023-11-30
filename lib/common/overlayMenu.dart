@@ -147,7 +147,10 @@ class _OverlayMenuState extends State<OverlayMenu> {
             height: MediaQuery.of(context).size.height,
             child: GestureDetector(
               onTap: () {
-                selectedProvider.selectedPosition(0.0, 0.0);
+                setState(() {
+                  selectedProvider.selectedOverlay(false);
+                  selectedProvider.selectedPosition(0.0, 0.0);
+                });
               },
             ),
           ),

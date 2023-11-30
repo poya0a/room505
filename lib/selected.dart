@@ -4,6 +4,7 @@ import 'package:room505/temp/tempClass.dart';
 class SelectedProvider extends ChangeNotifier {
   bool _exitApp = false;
   String _menu = '';
+  bool _showOverlay = false;
   int _room = 0;
   double _positionTop = 0.0;
   double _positionLeft = 0.0;
@@ -23,21 +24,30 @@ class SelectedProvider extends ChangeNotifier {
     }
   }
 
+  void selectedOverlay(bool showOverlay) {
+    _showOverlay = showOverlay;
+    notifyListeners();
+  }
+
   void selectedRoom(int room) {
     _room = room;
     notifyListeners();
+  }
+
+  bool getExitApp() {
+    return _exitApp;
   }
 
   String getMenu() {
     return _menu;
   }
 
-  int getRoom() {
-    return _room;
+  bool getShowOverlay() {
+    return _showOverlay;
   }
 
-  bool getExitApp() {
-    return _exitApp;
+  int getRoom() {
+    return _room;
   }
 
   void selectedPosition(double bottom, double left) {

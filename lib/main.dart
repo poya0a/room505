@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'dart:html' as html;
+import 'dart:io';
+import 'package:desktop_window/desktop_window.dart';
 import 'package:provider/provider.dart';
 import 'package:room505/auth/login.dart';
 import 'package:room505/screen/mainScreen.dart';
@@ -9,7 +10,9 @@ import 'package:room505/created.dart';
 import 'package:room505/mediaQuery.dart';
 import 'package:room505/temp/tempClass.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await DesktopWindow.setMinWindowSize(const Size(200, 600));
   runApp(
     MultiProvider(
       providers: [
@@ -31,7 +34,8 @@ class App extends StatelessWidget {
     bool exitApp =
         Provider.of<SelectedProvider>(context, listen: false).getExitApp();
     if (exitApp) {
-      html.window.close();
+      Process.run('taskkill', ['/IM', 'room505.exe'])
+          .then((ProcessResult results) {});
     }
     List<UserList> user = Provider.of<CreatedProvider>(context).getUserInfo();
     return Consumer4<ThemeProvider, SelectedProvider, CreatedProvider,

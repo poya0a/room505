@@ -7,7 +7,6 @@ import 'package:room505/selected.dart';
 import 'package:room505/created.dart';
 import 'package:room505/temp/tempClass.dart';
 import 'package:room505/mediaQuery.dart';
-import 'package:room505/auth/login.dart';
 import 'package:room505/screen/user/userMenu.dart';
 import 'package:room505/common/overlayMenu.dart';
 import 'package:room505/screen/menu/More.dart';
@@ -36,6 +35,7 @@ class _MainScreenState extends State<MainScreen> {
     final _width = Provider.of<MediaQueryProvider>(context).getUseMenuWidth();
     final selectedProvider = Provider.of<SelectedProvider>(context);
     String selectedMenu = selectedProvider.getMenu();
+    bool showOverlay = selectedProvider.getShowOverlay();
     String selectedSetMenu = selectedProvider.getSetMenu();
     double top = selectedProvider.getPositionTop();
     double left = selectedProvider.getPositionLeft();
@@ -78,7 +78,7 @@ class _MainScreenState extends State<MainScreen> {
                       child: Image.asset(
                         user.isNotEmpty && user[0].image.isNotEmpty
                             ? user[0].image
-                            : '../../images/profile.png',
+                            : 'images/profile.png',
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -126,6 +126,8 @@ class _MainScreenState extends State<MainScreen> {
         child: GestureDetector(
           onTap: () {
             FocusScope.of(context).unfocus();
+            Provider.of<SelectedProvider>(context, listen: false)
+                .selectedOverlay(false);
           },
           child: Row(
             children: [
@@ -180,7 +182,7 @@ class _MainScreenState extends State<MainScreen> {
                   if (selectedSetMenu == "settingMenu") const SettingMenu(),
                   if (selectedSetMenu == "settingProfile")
                     const SettingProfile(),
-                  if (top != 0.0 && left != 0.0 && _width != 0)
+                  if (top != 0.0 && left != 0.0 && _width != 0 && showOverlay)
                     const OverlayMenu(),
                 ],
               ),

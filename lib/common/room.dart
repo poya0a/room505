@@ -25,7 +25,8 @@ class _RoomState extends State<Room> {
 
   @override
   Widget build(BuildContext context) {
-    final selectedProvider = Provider.of<SelectedProvider>(context);
+    final selectedProvider =
+        Provider.of<SelectedProvider>(context, listen: false);
     String selectedMenu = selectedProvider.getMenu();
 
     return Stack(
@@ -78,6 +79,7 @@ class _RoomState extends State<Room> {
                 },
                 child: GestureDetector(
                   onTap: () {
+                    selectedProvider.selectedOverlay(true);
                     final RenderBox? box = _globalKey.currentContext
                         ?.findRenderObject() as RenderBox?;
                     final position = box?.localToGlobal(Offset.zero);

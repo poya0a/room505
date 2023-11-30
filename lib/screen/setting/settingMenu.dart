@@ -15,7 +15,7 @@ class SettingMenu extends StatefulWidget {
 class _SettingMenuState extends State<SettingMenu> {
   String menuHover = "";
 
-  void logout() async {
+  void _logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove('user');
     setState(() {
@@ -30,7 +30,7 @@ class _SettingMenuState extends State<SettingMenu> {
   }
 
   // 앱 종료 함수
-  void _exitApp(BuildContext context) {
+  void _exitApp(BuildContext context, logout) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -46,10 +46,19 @@ class _SettingMenuState extends State<SettingMenu> {
             ),
             TextButton(
               onPressed: () {
-                logout();
-                Provider.of<SelectedProvider>(context).setExitApp(true);
-                Provider.of<SelectedProvider>(context, listen: false)
-                    .getExitApp();
+                if (logout) {
+                  _logout();
+                }
+                setState(() {
+                  Provider.of<SelectedProvider>(context).setExitApp(true);
+                  Provider.of<SelectedProvider>(context, listen: false)
+                      .getExitApp();
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => const App(),
+                    ),
+                  );
+                });
               },
               child: const Text('종료'),
             ),
@@ -106,7 +115,7 @@ class _SettingMenuState extends State<SettingMenu> {
                   },
                   child: GestureDetector(
                     onTap: () {
-                      logout();
+                      _logout();
                     },
                     child: Container(
                       width: 80,
@@ -134,10 +143,8 @@ class _SettingMenuState extends State<SettingMenu> {
                     });
                   },
                   child: GestureDetector(
-                    onTap: () {
-                      Provider.of<SelectedProvider>(context).setExitApp(true);
-                      Provider.of<SelectedProvider>(context, listen: false)
-                          .getExitApp();
+                    onTap: () async {
+                      _exitApp(context, false);
                     },
                     child: Container(
                       width: 80,
@@ -166,7 +173,7 @@ class _SettingMenuState extends State<SettingMenu> {
                   },
                   child: GestureDetector(
                     onTap: () async {
-                      _exitApp(context);
+                      _exitApp(context, true);
                     },
                     child: Container(
                       width: 80,

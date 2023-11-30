@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  desktop_window
   emoji_picker_flutter
   modal_progress_hud_nsn
   pasteboard

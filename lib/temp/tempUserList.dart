@@ -10,7 +10,7 @@ List<UserList> generateTempUserList() {
         '사용자 $i',
         'user$i@example.com',
         '123-456-78$i',
-        '../../images/profile.png',
+        'images/profile.png',
         true,
         '${i}:00 AM',
       ),

@@ -141,7 +141,7 @@ class _ChatRoomState extends State<ChatRoom> {
                   return ChatBubbles(
                     userId: "test",
                     userName: "test",
-                    userImage: '../../../images/profile.png',
+                    userImage: '/images/profile.png',
                     currentUser: true,
                     message: chat[index],
                     sendTime: '오후 5:00',
