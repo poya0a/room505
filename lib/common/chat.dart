@@ -28,12 +28,14 @@ class _ChatState extends State<Chat> {
 
     return GestureDetector(
       onTap: () {
+        selectedProvider.selectedMenu(widget.name);
+      },
+      onDoubleTap: () {
         final RenderBox? box =
             _globalKey.currentContext?.findRenderObject() as RenderBox?;
         final position = box?.localToGlobal(Offset.zero);
         if (position != null) {
           selectedProvider.selectedPosition(position.dy, position.dx);
-          selectedProvider.selectedMenu(widget.name);
         }
       },
       child: Container(

@@ -5,7 +5,8 @@ import 'package:room505/created.dart';
 import 'package:room505/mediaQuery.dart';
 import 'package:room505/temp/tempClass.dart';
 import 'package:room505/screen/chatRoom/chatBubbles.dart';
-import 'package:room505/screen/chatRoom/MessageEditor.dart';
+import 'package:room505/screen/chatRoom/chatMessage.dart';
+// import 'package:room505/screen/chatRoom/MessageEditor.dart';
 
 class ChatRoom extends StatefulWidget {
   const ChatRoom({super.key});
@@ -152,7 +153,8 @@ class _ChatRoomState extends State<ChatRoom> {
               ),
             ),
           ),
-          MessageEditor(),
+          ChatMessage(),
+          // MessageEditor(),
         ],
       ),
     );
