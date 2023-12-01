@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:room505/selected.dart';
 import 'package:room505/created.dart';
 import 'package:room505/common/dialog/userSelectDialog.dart';
-import 'package:room505/common/dialog/createRoomDialog.dart';
 
 class OverlayMenu extends StatefulWidget {
   const OverlayMenu({super.key});
@@ -18,18 +17,6 @@ class _OverlayMenuState extends State<OverlayMenu> {
   List<Map<String, dynamic>> selectedMenu = [];
 
   List<Map<String, dynamic>> createMenu = [
-    {
-      "keyValue": "roomCreate",
-      "text": "방 생성",
-      "onTap": (context) {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return CreateRoomDialog();
-          },
-        );
-      },
-    },
     {
       "keyValue": "chatCreate",
       "text": "대화 생성",
@@ -110,19 +97,6 @@ class _OverlayMenuState extends State<OverlayMenu> {
     double top = selectedProvider.getPositionTop();
     double left = selectedProvider.getPositionLeft();
 
-    final getMenu = Provider.of<SelectedProvider>(context).getMenu();
-    final roomList = Provider.of<CreatedProvider>(context).getRoomList();
-
-    int roomSeq;
-
-    for (var room in roomList) {
-      if (room.name == getMenu) {
-        roomSeq = room.seq;
-        Provider.of<SelectedProvider>(context).selectedRoom(roomSeq);
-        break;
-      }
-    }
-
     List<Map<String, dynamic>> selectedMenu = [];
     if (menuHover == 'create') {
       selectedMenu = createMenu;
@@ -148,8 +122,8 @@ class _OverlayMenuState extends State<OverlayMenu> {
             child: GestureDetector(
               onTap: () {
                 setState(() {
-                  selectedProvider.selectedOverlay(false);
-                  selectedProvider.selectedPosition(0.0, 0.0);
+                  Provider.of<SelectedProvider>(context, listen: false)
+                      .selectedPosition(0.0, 0.0);
                 });
               },
             ),
@@ -256,7 +230,7 @@ class _OverlayMenuState extends State<OverlayMenu> {
             child: Container(
               width: 160,
               height: menuHover == "create"
-                  ? 68
+                  ? 35
                   : menuHover == "setting"
                       ? 134
                       : 200,

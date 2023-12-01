@@ -8,6 +8,7 @@ import 'package:room505/created.dart';
 import 'package:room505/temp/tempClass.dart';
 import 'package:room505/mediaQuery.dart';
 import 'package:room505/screen/user/userMenu.dart';
+import 'package:room505/screen/user/userProfile.dart';
 import 'package:room505/common/overlayMenu.dart';
 import 'package:room505/screen/menu/More.dart';
 import 'package:room505/screen/menu/connect.dart';
@@ -29,17 +30,20 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    List<UserList> user = Provider.of<CreatedProvider>(context).getUserInfo();
+    final selectedProvider = Provider.of<SelectedProvider>(context);
+    final createdProvider = Provider.of<CreatedProvider>(context);
+    final mediaQueryProvider = Provider.of<MediaQueryProvider>(context);
+    List<UserList> user = createdProvider.getUserInfo();
     MediaQueryData queryData = MediaQuery.of(context);
     double screenWidth = queryData.size.width;
-    final _width = Provider.of<MediaQueryProvider>(context).getUseMenuWidth();
-    final selectedProvider = Provider.of<SelectedProvider>(context);
+    final _menuWidth = mediaQueryProvider.getUserMenuWidth();
+    final _profileWidth = mediaQueryProvider.getUserProfileWidth();
+    final userProfile = selectedProvider.getUserProfile();
     String selectedMenu = selectedProvider.getMenu();
-    bool showOverlay = selectedProvider.getShowOverlay();
     String selectedSetMenu = selectedProvider.getSetMenu();
     double top = selectedProvider.getPositionTop();
     double left = selectedProvider.getPositionLeft();
-    final chatList = Provider.of<CreatedProvider>(context).getChatList();
+    final chatList = createdProvider.getChatList();
     bool selectedChat = chatList.any((chat) => chat.name == selectedMenu);
 
     return Scaffold(
@@ -126,71 +130,115 @@ class _MainScreenState extends State<MainScreen> {
         child: GestureDetector(
           onTap: () {
             FocusScope.of(context).unfocus();
-            Provider.of<SelectedProvider>(context, listen: false)
-                .selectedOverlay(false);
           },
-          child: Row(
+          child: Stack(
             children: [
-              Stack(
+              Row(
                 children: [
-                  Container(
-                    width: _width,
-                    height: MediaQuery.of(context).size.height,
-                    decoration: BoxDecoration(
-                      border: Border(
-                        right: BorderSide(
-                          color: Theme.of(context).shadowColor,
-                          width: 1,
-                        ),
-                      ),
-                    ),
-                    child: const UserMenu(),
-                  ),
-                  Positioned(
-                    right: 0,
-                    child: GestureDetector(
-                      onPanUpdate: (details) {
-                        setState(() {
-                          Provider.of<MediaQueryProvider>(context,
-                                  listen: false)
-                              .controlUseMenuWidth(details.delta.dx);
-                        });
-                      },
-                      onPanEnd: (details) {
-                        Future.delayed(
-                            Provider.of<MediaQueryProvider>(context,
-                                    listen: false)
-                                .delay, () {
-                          setState(() {
-                            Provider.of<MediaQueryProvider>(context,
-                                    listen: false)
-                                .hideUseMenuWidth();
-                          });
-                        });
-                      },
-                      child: Container(
-                        width: 5,
+                  Stack(
+                    children: [
+                      Container(
+                        width: _menuWidth,
                         height: MediaQuery.of(context).size.height,
-                        color: Colors.transparent,
-                        child: MouseRegion(
-                          cursor: SystemMouseCursors.resizeColumn,
-                          child: Container(),
+                        decoration: BoxDecoration(
+                          border: Border(
+                            right: BorderSide(
+                              color: Theme.of(context).shadowColor,
+                              width: 1,
+                            ),
+                          ),
+                        ),
+                        child: const UserMenu(),
+                      ),
+                      Positioned(
+                        right: 0,
+                        child: GestureDetector(
+                          onPanUpdate: (details) {
+                            Provider.of<MediaQueryProvider>(context,
+                                    listen: false)
+                                .controlUserMenuWidth(details.delta.dx);
+                          },
+                          onPanEnd: (details) {
+                            Provider.of<MediaQueryProvider>(context,
+                                    listen: false)
+                                .hideUserMenuWidth();
+                          },
+                          child: Container(
+                            width: 5,
+                            height: MediaQuery.of(context).size.height,
+                            color: Colors.transparent,
+                            child: const MouseRegion(
+                              cursor: SystemMouseCursors.resizeColumn,
+                              child: null,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                  if (selectedSetMenu == "settingMenu") const SettingMenu(),
-                  if (selectedSetMenu == "settingProfile")
-                    const SettingProfile(),
-                  if (top != 0.0 && left != 0.0 && _width != 0 && showOverlay)
-                    const OverlayMenu(),
+                  Container(
+                    width: userProfile.isEmpty
+                        ? MediaQuery.of(context).size.width - _menuWidth
+                        : MediaQuery.of(context).size.width -
+                            _menuWidth -
+                            _profileWidth,
+                    child: selectedMenu == "document"
+                        ? const Document()
+                        : selectedMenu == "file"
+                            ? const File()
+                            : selectedMenu == "connect"
+                                ? const Connect()
+                                : selectedMenu == "more"
+                                    ? const More()
+                                    : selectedChat
+                                        ? const ChatRoom()
+                                        : null,
+                  ),
+                  if (userProfile.isNotEmpty)
+                    Stack(
+                      children: [
+                        Container(
+                          width: _profileWidth,
+                          height: MediaQuery.of(context).size.height,
+                          decoration: BoxDecoration(
+                            border: Border(
+                              left: BorderSide(
+                                color: Theme.of(context).shadowColor,
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          child: const UserProfile(),
+                        ),
+                        Positioned(
+                          left: 0,
+                          child: GestureDetector(
+                            onPanUpdate: (details) {
+                              setState(() {
+                                Provider.of<MediaQueryProvider>(context,
+                                        listen: false)
+                                    .controlUserProfileWidth(details.delta.dx);
+                              });
+                            },
+                            child: Container(
+                              width: 5,
+                              height: MediaQuery.of(context).size.height,
+                              color: Colors.transparent,
+                              child: const MouseRegion(
+                                cursor: SystemMouseCursors.resizeColumn,
+                                child: null,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ),
-              if (selectedMenu == "document") const Document(),
-              if (selectedMenu == "file") const File(),
-              if (selectedMenu == "connect") const Connect(),
-              if (selectedMenu == "more") const More(),
-              if (selectedChat) const ChatRoom(),
+              if (selectedSetMenu == "settingMenu") const SettingMenu(),
+              if (selectedSetMenu == "settingProfile") const SettingProfile(),
+              if (top != 0.0 && left != 0.0 && _menuWidth != 0)
+                const OverlayMenu(),
             ],
           ),
         ),

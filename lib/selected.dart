@@ -4,12 +4,10 @@ import 'package:room505/temp/tempClass.dart';
 class SelectedProvider extends ChangeNotifier {
   bool _exitApp = false;
   String _menu = '';
-  bool _showOverlay = false;
-  int _room = 0;
   double _positionTop = 0.0;
   double _positionLeft = 0.0;
+  List<UserList> userProfile = [];
   List<AddList> addList = [];
-  List<UserList> userlist = [];
   String _setMenu = '';
 
   void setExitApp(bool exitApp) {
@@ -24,30 +22,12 @@ class SelectedProvider extends ChangeNotifier {
     }
   }
 
-  void selectedOverlay(bool showOverlay) {
-    _showOverlay = showOverlay;
-    notifyListeners();
-  }
-
-  void selectedRoom(int room) {
-    _room = room;
-    notifyListeners();
-  }
-
   bool getExitApp() {
     return _exitApp;
   }
 
   String getMenu() {
     return _menu;
-  }
-
-  bool getShowOverlay() {
-    return _showOverlay;
-  }
-
-  int getRoom() {
-    return _room;
   }
 
   void selectedPosition(double bottom, double left) {
@@ -62,6 +42,20 @@ class SelectedProvider extends ChangeNotifier {
 
   double getPositionLeft() {
     return _positionLeft;
+  }
+
+  void selectedUserProfile(UserList user) {
+    userProfile.add(user);
+    notifyListeners();
+  }
+
+  void resetUserProfile() {
+    userProfile.clear();
+    notifyListeners();
+  }
+
+  List<UserList> getUserProfile() {
+    return userProfile;
   }
 
   void addUser(AddList user) {

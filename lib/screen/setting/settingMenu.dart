@@ -15,12 +15,10 @@ class SettingMenu extends StatefulWidget {
 class _SettingMenuState extends State<SettingMenu> {
   String menuHover = "";
 
-  void _logout() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove('user');
+  void _exit() async {
     setState(() {
-      Provider.of<CreatedProvider>(context, listen: false).loadUserInfo();
-      Provider.of<SelectedProvider>(context, listen: false).selectedSet("");
+      Provider.of<SelectedProvider>(context, listen: false).setExitApp(true);
+      Provider.of<SelectedProvider>(context).getExitApp();
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => const App(),
@@ -29,14 +27,13 @@ class _SettingMenuState extends State<SettingMenu> {
     });
   }
 
-  // 앱 종료 함수
-  void _exitApp(BuildContext context, logout) {
+  void _exitApp(BuildContext context, exit) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('앱 종료'),
-          content: const Text('앱을 종료하시겠습니까?'),
+          title: exit ? const Text('종료') : const Text('로그아웃'),
+          content: exit ? const Text('종료 하시겠습니까?') : const Text('로그아웃 하시겠습니까?'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -45,22 +42,25 @@ class _SettingMenuState extends State<SettingMenu> {
               child: const Text('취소'),
             ),
             TextButton(
-              onPressed: () {
-                if (logout) {
-                  _logout();
-                }
+              onPressed: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                prefs.remove('user');
                 setState(() {
-                  Provider.of<SelectedProvider>(context).setExitApp(true);
+                  Provider.of<CreatedProvider>(context, listen: false)
+                      .loadUserInfo();
                   Provider.of<SelectedProvider>(context, listen: false)
-                      .getExitApp();
+                      .selectedSet("");
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                       builder: (context) => const App(),
                     ),
                   );
                 });
+                if (exit) {
+                  _exit();
+                }
               },
-              child: const Text('종료'),
+              child: exit ? const Text('종료') : const Text('로그아웃'),
             ),
           ],
         );
@@ -115,7 +115,7 @@ class _SettingMenuState extends State<SettingMenu> {
                   },
                   child: GestureDetector(
                     onTap: () {
-                      _logout();
+                      _exitApp(context, false);
                     },
                     child: Container(
                       width: 80,
@@ -144,7 +144,7 @@ class _SettingMenuState extends State<SettingMenu> {
                   },
                   child: GestureDetector(
                     onTap: () async {
-                      _exitApp(context, false);
+                      _exit();
                     },
                     child: Container(
                       width: 80,

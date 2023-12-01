@@ -7,10 +7,12 @@ class UserList {
   final String phone;
   final String image;
   final bool status;
+  final List updateStatus;
   final String time;
+  final String introduce;
 
   UserList(this.seq, this.name, this.email, this.phone, this.image, this.status,
-      this.time);
+      this.updateStatus, this.time, this.introduce);
 
   Map<String, dynamic> toJson() {
     return {
@@ -20,7 +22,9 @@ class UserList {
       'phone': phone,
       'image': image,
       'status': status,
+      'updateStatus': updateStatus,
       'time': time,
+      'introduce': introduce,
     };
   }
 
@@ -32,34 +36,10 @@ class UserList {
       json['phone'],
       json['image'],
       json['status'],
+      json['updateStatus'],
       json['time'],
+      json['introduce'],
     );
-  }
-}
-
-class RoomList {
-  final int sortingNumber;
-  final int seq;
-  final String name;
-  final String emoji;
-  final List<int> chatSeqList;
-
-  RoomList(
-      this.sortingNumber, this.seq, this.name, this.emoji, this.chatSeqList);
-
-  Map<String, dynamic> toJson() {
-    return {
-      'sortingNumber': sortingNumber,
-      'seq': seq,
-      'name': name,
-      'emoji': emoji,
-      'chatSeqList': chatSeqList,
-    };
-  }
-
-  factory RoomList.fromJson(Map<String, dynamic> json) {
-    return RoomList(json['sortingNumber'], json['seq'], json['name'],
-        json['emoji'], (json['chatSeqList'] as List<dynamic>).cast<int>());
   }
 }
 

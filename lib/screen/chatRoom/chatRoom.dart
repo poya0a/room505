@@ -35,7 +35,10 @@ class _ChatRoomState extends State<ChatRoom> {
 
   @override
   Widget build(BuildContext context) {
-    final _width = Provider.of<MediaQueryProvider>(context).getUseMenuWidth();
+    final _menuWidth =
+        Provider.of<MediaQueryProvider>(context).getUserMenuWidth();
+    final _profileWidth =
+        Provider.of<MediaQueryProvider>(context).getUserMenuWidth();
     final selectedProvider = Provider.of<SelectedProvider>(context);
     String selectedMenu = selectedProvider.getMenu();
     final chatList = Provider.of<CreatedProvider>(context).getChatList();
@@ -49,12 +52,8 @@ class _ChatRoomState extends State<ChatRoom> {
 
     return Container(
       height: MediaQuery.of(context).size.height,
-      width: MediaQuery.of(context).size.width - _width,
+      width: MediaQuery.of(context).size.width - _menuWidth - _profileWidth,
       color: Theme.of(context).dialogBackgroundColor,
-      constraints: const BoxConstraints(
-        minWidth: 280,
-        minHeight: 650,
-      ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -73,16 +72,16 @@ class _ChatRoomState extends State<ChatRoom> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  if (_width == 0)
+                  if (_menuWidth == 0)
                     IconButton(
                       icon: Icon(Icons.featured_play_list),
                       color: Theme.of(context).textTheme.bodyText1!.color,
                       onPressed: () {
                         Provider.of<MediaQueryProvider>(context, listen: false)
-                            .controlUseMenuWidth(250);
+                            .controlUserMenuWidth(250);
                       },
                     ),
-                  if (_width != 0) Container(),
+                  if (_menuWidth != 0) Container(),
                   Padding(
                     padding: EdgeInsets.all(10),
                     child: Row(

@@ -4,38 +4,29 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:room505/config/palette.dart';
+import 'package:room505/temp/tempClass.dart';
 import 'package:room505/selected.dart';
 import 'package:room505/created.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/foundation.dart' as foundation;
-import 'package:room505/temp/tempClass.dart';
-import 'package:room505/temp/randomNumber.dart';
 
-class CreateRoomDialog extends StatefulWidget {
-  const CreateRoomDialog({super.key});
+class ChangeStatusDialog extends StatefulWidget {
+  const ChangeStatusDialog({super.key});
 
   @override
-  State<CreateRoomDialog> createState() => _CreateRoomDialogState();
+  State<ChangeStatusDialog> createState() => _ChangeStatusDialogState();
 }
 
-class _CreateRoomDialogState extends State<CreateRoomDialog> {
-  List<RoomList> roomList = [];
-  List<RoomList> room = [];
-
+class _ChangeStatusDialogState extends State<ChangeStatusDialog> {
   bool emojiShowing = false;
   String emojiSelected = "";
+  String statusString = "";
   bool _buttonEnabled = false;
-  String title = "";
-  String errorMessage = "";
   TextEditingController textController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    roomList =
-        Provider.of<CreatedProvider>(context, listen: false).getRoomList();
-    Provider.of<SelectedProvider>(context, listen: false)
-        .selectedPosition(0.0, 0.0);
   }
 
   void _onEmojiSelected(Emoji emoji) {
@@ -45,61 +36,70 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
     setState(() {
       emojiSelected = emojiInHex;
       emojiShowing = false;
-    });
-  }
-
-  void _onTextFieldChanged(String value) {
-    setState(() {
-      title = value;
-      bool isTitleEmpty = title.isEmpty;
-      bool isChatListEmpty = roomList.isEmpty;
-      bool isTitleContainedInSessionRooms =
-          roomList.any((room) => value == room.name);
-      print(isTitleContainedInSessionRooms);
-      if (isTitleEmpty) {
-        _buttonEnabled = false;
-      } else if (!isTitleEmpty &&
-          !isChatListEmpty &&
-          isTitleContainedInSessionRooms) {
-        errorMessage = "이미 사용 중인 이름입니다.";
+      if (statusString.isEmpty || emojiSelected == "") {
         _buttonEnabled = false;
       } else {
-        errorMessage = "";
         _buttonEnabled = true;
       }
     });
   }
 
-  void _createRoom() async {
-    int sotingNumber = 0;
-    final seq = generateRandomNumber();
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    List<String>? roomsStringList = prefs.getStringList('roomList');
-
-    if (roomsStringList != null) {
-      sotingNumber = roomsStringList.length + 1;
-      room = roomsStringList
-          .map((roomJson) => RoomList.fromJson(json.decode(roomJson)))
-          .toList();
-    }
-
-    RoomList newRoom = RoomList(sotingNumber, seq, title, emojiSelected, []);
-    room.add(newRoom);
-
-    List<String> updatedRoomsStringList =
-        room.map((room) => json.encode(room.toJson())).toList();
-    prefs.setStringList('roomList', updatedRoomsStringList);
-
+  void _onTextFieldChanged(String value) {
     setState(() {
-      Navigator.of(context).pop();
-      Provider.of<CreatedProvider>(context, listen: false).loadRoomList();
+      statusString = value;
+      if (statusString.isEmpty || emojiSelected == "") {
+        _buttonEnabled = false;
+      } else {
+        _buttonEnabled = true;
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    List<UserList> user = Provider.of<CreatedProvider>(context).getUserInfo();
+    int selctedUserSeq =
+        Provider.of<SelectedProvider>(context).getUserProfile()[0].seq;
+    List changeStatus = [];
+
+    void _changeStatus() async {
+      List<UserList> updateStatus = [];
+      changeStatus.add(emojiSelected);
+      changeStatus.add(statusString);
+
+      updateStatus.add(
+        UserList(
+          user[0].seq,
+          user[0].name,
+          user[0].email,
+          user[0].phone,
+          user[0].image,
+          user[0].status,
+          changeStatus,
+          user[0].time,
+          user[0].introduce,
+        ),
+      );
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      List<String> updatedUserData =
+          updateStatus.map((user) => jsonEncode(user.toJson())).toList();
+      await prefs.setStringList('user', updatedUserData);
+
+      setState(() {
+        Navigator.of(context).pop();
+        Provider.of<CreatedProvider>(context, listen: false).loadUserInfo();
+        Provider.of<SelectedProvider>(context, listen: false).selectedSet("");
+        if (selctedUserSeq == user[0].seq) {
+          Provider.of<SelectedProvider>(context, listen: false)
+              .resetUserProfile();
+          Provider.of<SelectedProvider>(context, listen: false)
+              .selectedUserProfile(updateStatus[0]);
+        }
+      });
+    }
+
     return Dialog(
       child: Container(
         padding: const EdgeInsets.all(20),
@@ -116,7 +116,7 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
               child: Stack(
                 children: [
                   IconButton(
-                    icon: Icon(Icons.arrow_back_ios),
+                    icon: const Icon(Icons.close),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
@@ -134,11 +134,11 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
                       child: TextButton(
                         onPressed: _buttonEnabled
                             ? () {
-                                _createRoom();
+                                _changeStatus();
                               }
                             : null,
                         child: Text(
-                          "생성",
+                          "저장",
                           style: TextStyle(
                             color: Theme.of(context).textTheme.bodyText1!.color,
                             fontWeight: FontWeight.bold,
@@ -167,7 +167,7 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
                     },
                     icon: Icon(
                       emojiSelected == ""
-                          ? Icons.view_headline
+                          ? Icons.tag_faces
                           : IconData(int.parse(emojiSelected, radix: 16),
                               fontFamily: 'EmojiFontFamily'),
                       color: Theme.of(context).textTheme.bodyText2!.color,
@@ -182,7 +182,7 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
                     controller: textController,
                     inputFormatters: [LengthLimitingTextInputFormatter(80)],
                     decoration: const InputDecoration(
-                      labelText: "방 이름",
+                      labelText: "상태를 입력해 주세요.",
                       labelStyle:
                           TextStyle(fontSize: 12, color: Palette.subColor),
                       enabledBorder: OutlineInputBorder(
@@ -197,7 +197,7 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
                           Radius.circular(5.0),
                         ),
                       ),
-                      hintText: "방 이름을 입력해 주세요.",
+                      hintText: "상태를 입력해 주세요.",
                       hintStyle:
                           TextStyle(fontSize: 12, color: Palette.subColor),
                       contentPadding: EdgeInsets.all(10),
@@ -212,18 +212,6 @@ class _CreateRoomDialogState extends State<CreateRoomDialog> {
                 ),
               ],
             ),
-            if (errorMessage != "")
-              Container(
-                padding: EdgeInsets.only(top: 10),
-                child: Text(
-                  errorMessage,
-                  textAlign: TextAlign.left,
-                  style: const TextStyle(
-                    color: Palette.subColor,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
             if (emojiShowing)
               Expanded(
                 child: SizedBox(

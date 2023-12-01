@@ -6,13 +6,11 @@ class Chat extends StatefulWidget {
   final int seq;
   final String name;
   final String emoji;
-  final bool inRoom;
 
   Chat({
     required this.seq,
     required this.name,
     required this.emoji,
-    required this.inRoom,
   });
 
   @override
@@ -20,21 +18,26 @@ class Chat extends StatefulWidget {
 }
 
 class _ChatState extends State<Chat> {
+  final GlobalKey _globalKey = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
-    final selectedProvider = Provider.of<SelectedProvider>(context);
-    String selectedMenu = selectedProvider.getMenu();
+    final selectedProvider =
+        Provider.of<SelectedProvider>(context, listen: false);
+    String selectedMenu = Provider.of<SelectedProvider>(context).getMenu();
 
     return GestureDetector(
       onTap: () {
-        setState(() {
+        final RenderBox? box =
+            _globalKey.currentContext?.findRenderObject() as RenderBox?;
+        final position = box?.localToGlobal(Offset.zero);
+        if (position != null) {
+          selectedProvider.selectedPosition(position.dy, position.dx);
           selectedProvider.selectedMenu(widget.name);
-        });
+        }
       },
       child: Container(
-        padding: widget.inRoom
-            ? EdgeInsets.fromLTRB(40, 5, 10, 5)
-            : EdgeInsets.fromLTRB(10, 5, 10, 5),
+        padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(5),
           color: selectedMenu == widget.name
@@ -58,6 +61,7 @@ class _ChatState extends State<Chat> {
             Expanded(
               child: Text(
                 widget.name,
+                key: _globalKey,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
                 style: TextStyle(

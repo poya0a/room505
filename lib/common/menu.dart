@@ -15,12 +15,12 @@ class Menu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final selectedProvider = Provider.of<SelectedProvider>(context);
-    String selectedMenu = selectedProvider.getMenu();
+    String selectedMenu = Provider.of<SelectedProvider>(context).getMenu();
 
     return GestureDetector(
       onTap: () {
-        selectedProvider.selectedMenu(keyValue);
+        Provider.of<SelectedProvider>(context, listen: false)
+            .selectedMenu(keyValue);
       },
       child: Container(
         padding: EdgeInsets.fromLTRB(10, 5, 10, 5),

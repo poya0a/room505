@@ -97,8 +97,6 @@ class _CreateChatState extends State<CreateChat> {
   }
 
   void _createChat() async {
-    final getRoom =
-        Provider.of<SelectedProvider>(context, listen: false).getRoom();
     final seq = generateRandomNumber();
     int sotingNumber = 0;
 
@@ -121,29 +119,9 @@ class _CreateChatState extends State<CreateChat> {
         chatRoom.map((chatRoom) => json.encode(chatRoom.toJson())).toList();
     prefs.setStringList('chatList', updatedChatRoomsStringList);
 
-    List<String>? roomsStringList = prefs.getStringList('roomList');
-
-    if (roomsStringList != null && getRoom != 0) {
-      for (String roomJson in roomsStringList) {
-        Map<String, dynamic> roomMap = json.decode(roomJson);
-        int roomSeq = roomMap['seq'];
-
-        if (roomSeq == getRoom) {
-          List<int> chatSeqList = List<int>.from(roomMap['chatSeqList']);
-
-          chatSeqList.add(seq);
-          roomMap['chatSeqList'] = chatSeqList;
-          roomsStringList[roomsStringList.indexOf(roomJson)] =
-              json.encode(roomMap);
-          prefs.setStringList('roomList', roomsStringList);
-        }
-      }
-    }
-
     setState(() {
       Provider.of<SelectedProvider>(context, listen: false).resetAddList();
       Navigator.of(context).pop();
-      Provider.of<CreatedProvider>(context, listen: false).loadRoomList();
       Provider.of<CreatedProvider>(context, listen: false).loadChatList();
     });
   }
