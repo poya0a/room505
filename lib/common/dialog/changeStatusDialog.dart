@@ -58,8 +58,8 @@ class _ChangeStatusDialogState extends State<ChangeStatusDialog> {
   @override
   Widget build(BuildContext context) {
     List<UserList> user = Provider.of<CreatedProvider>(context).getUserInfo();
-    int selctedUserSeq =
-        Provider.of<SelectedProvider>(context).getUserProfile()[0].seq;
+    List<UserList> selectedUser =
+        Provider.of<SelectedProvider>(context).getUserProfile();
     List changeStatus = [];
 
     void _changeStatus() async {
@@ -91,7 +91,7 @@ class _ChangeStatusDialogState extends State<ChangeStatusDialog> {
         Navigator.of(context).pop();
         Provider.of<CreatedProvider>(context, listen: false).loadUserInfo();
         Provider.of<SelectedProvider>(context, listen: false).selectedSet("");
-        if (selctedUserSeq == user[0].seq) {
+        if (selectedUser.isNotEmpty && selectedUser[0].seq == user[0].seq) {
           Provider.of<SelectedProvider>(context, listen: false)
               .resetUserProfile();
           Provider.of<SelectedProvider>(context, listen: false)

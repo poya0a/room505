@@ -83,7 +83,7 @@ class _SettingProfileState extends State<SettingProfile> {
           right: 20,
           child: Container(
             width: 200,
-            height: user[0].updateStatus.isEmpty ? 210 : 243,
+            height: user[0].updateStatus.isEmpty ? 177 : 210,
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(
                 Radius.circular(5.0),
@@ -302,35 +302,11 @@ class _SettingProfileState extends State<SettingProfile> {
                       width: 200,
                       height: 33,
                       padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Theme.of(context).shadowColor,
-                            width: 1,
-                          ),
-                        ),
-                        color: menuHover == "profile"
-                            ? Theme.of(context).shadowColor
-                            : Theme.of(context).scaffoldBackgroundColor,
-                      ),
+                      color: menuHover == "profile"
+                          ? Theme.of(context).shadowColor
+                          : Theme.of(context).scaffoldBackgroundColor,
                       child: const Text("프로필"),
                     ),
-                  ),
-                ),
-                MouseRegion(
-                  onEnter: (_) {
-                    setState(() {
-                      menuHover = "withdrawal";
-                    });
-                  },
-                  child: Container(
-                    width: 200,
-                    height: 33,
-                    padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                    color: menuHover == "withdrawal"
-                        ? Theme.of(context).shadowColor
-                        : Theme.of(context).scaffoldBackgroundColor,
-                    child: const Text("회원 탈퇴"),
                   ),
                 ),
               ],

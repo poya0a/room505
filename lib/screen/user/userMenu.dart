@@ -163,23 +163,21 @@ class _UserMenuState extends State<UserMenu> {
                 Container(
                   height: MediaQuery.of(context).size.height - 327,
                   padding: const EdgeInsets.all(10),
-                  child: Expanded(
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: chatList.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        final chat = chatList[index];
-                        return Column(
-                          children: [
-                            Chat(
-                              seq: chat.seq,
-                              name: chat.name,
-                              emoji: chat.emoji,
-                            ),
-                          ],
-                        );
-                      },
-                    ),
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: chatList.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final chat = chatList[index];
+                      return Column(
+                        children: [
+                          Chat(
+                            seq: chat.seq,
+                            name: chat.name,
+                            emoji: chat.emoji,
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
               ],
