@@ -57,7 +57,7 @@ class _ChatState extends State<Chat> {
             Icon(
               widget.emoji == ""
                   ? Icons.chat_bubble
-                  : IconData(int.parse(widget.emoji, radix: 16),
+                  : IconData(int.parse(widget.emoji, radix: 20),
                       fontFamily: 'EmojiFontFamily'),
               color: selectedChat == widget.seq
                   ? Theme.of(context).textTheme.headline1!.color
@@ -66,20 +66,33 @@ class _ChatState extends State<Chat> {
             const SizedBox(
               width: 10,
             ),
-            Expanded(
-              child: Text(
-                widget.name,
-                key: _globalKey,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: TextStyle(
-                  color: selectedChat == widget.seq
-                      ? Theme.of(context).textTheme.headline1!.color
-                      : Theme.of(context).textTheme.bodyText1!.color,
-                  fontSize: 14,
+            Column(
+              key: _globalKey,
+              children: [
+                Text(
+                  widget.name,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: TextStyle(
+                    color: selectedChat == widget.seq
+                        ? Theme.of(context).textTheme.headline1!.color
+                        : Theme.of(context).textTheme.bodyText1!.color,
+                    fontSize: 14,
+                  ),
                 ),
-              ),
-            )
+                Text(
+                  widget.name,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: TextStyle(
+                    color: selectedChat == widget.seq
+                        ? Theme.of(context).textTheme.headline1!.color
+                        : Theme.of(context).textTheme.bodyText1!.color,
+                    fontSize: 10,
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
