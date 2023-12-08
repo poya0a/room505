@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
-import 'package:room505/theme.dart';
 import 'package:room505/created.dart';
+import 'package:room505/theme.dart';
 import 'package:room505/temp/tempClass.dart';
 import 'package:room505/common/menu.dart';
 import 'package:room505/common/chat.dart';
@@ -18,7 +16,7 @@ class UserMenu extends StatefulWidget {
 
 class _UserMenuState extends State<UserMenu> {
   String mode = "라이트 모드";
-  List<ChatList> initChat = [];
+  List<ChatList> chatRooms = [];
 
   void _showUserList(BuildContext context) {
     showDialog(
@@ -29,32 +27,12 @@ class _UserMenuState extends State<UserMenu> {
     );
   }
 
-  Future<void> saveLists() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    List<String> chatListJson =
-        initChat.map((chat) => jsonEncode(chat.toJson())).toList();
-    await prefs.setStringList('chatList', chatListJson);
-  }
-
   @override
-  void initState() {
-    super.initState();
-
-    initChat.add(
-      ChatList(0, 001, "CHAT", "", []),
-    );
-
-    saveLists();
-
-    setState(() {
-      Provider.of<CreatedProvider>(context, listen: false).loadChatList();
-    });
-  }
-
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final chatList = Provider.of<CreatedProvider>(context).getChatList();
+    final createdProvider = Provider.of<CreatedProvider>(context);
+    createdProvider.loadChatList();
+    chatRooms = createdProvider.getChatList();
 
     return Container(
       color: Theme.of(context).canvasColor,
@@ -163,22 +141,29 @@ class _UserMenuState extends State<UserMenu> {
                 Container(
                   height: MediaQuery.of(context).size.height - 327,
                   padding: const EdgeInsets.all(10),
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: chatList.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      final chat = chatList[index];
-                      return Column(
-                        children: [
-                          Chat(
-                            seq: chat.seq,
-                            name: chat.name,
-                            emoji: chat.emoji,
-                          ),
-                        ],
-                      );
-                    },
-                  ),
+                  child: chatRooms.isNotEmpty
+                      ? ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: chatRooms.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            final chat = chatRooms[index];
+                            return Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 10),
+                                  child: Chat(
+                                    seq: chat.seq,
+                                    name: chat.name,
+                                    emoji: chat.emoji,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        )
+                      : const Center(
+                          child: Text("대화를 시작하세요!"),
+                        ),
                 ),
               ],
             ),

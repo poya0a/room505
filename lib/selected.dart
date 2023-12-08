@@ -1,4 +1,6 @@
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:room505/temp/tempClass.dart';
 
 class SelectedProvider extends ChangeNotifier {
@@ -6,9 +8,13 @@ class SelectedProvider extends ChangeNotifier {
   String _menu = '';
   double _positionTop = 0.0;
   double _positionLeft = 0.0;
-  List<UserList> userProfile = [];
+  User userProfile = User(0, '', '', '', '', false, [], '', '');
   List<AddList> addList = [];
   String _setMenu = '';
+  bool _scrollToBottom = true;
+  int _seq = 0;
+  Emoji _emoji = const Emoji("", "");
+  File _file = File("");
 
   void setExitApp(bool exitApp) {
     _exitApp = exitApp;
@@ -44,17 +50,17 @@ class SelectedProvider extends ChangeNotifier {
     return _positionLeft;
   }
 
-  void selectedUserProfile(UserList user) {
-    userProfile.add(user);
+  void selectedUserProfile(User user) {
+    userProfile = user;
     notifyListeners();
   }
 
   void resetUserProfile() {
-    userProfile.clear();
+    userProfile = User(0, '', '', '', '', false, [], '', '');
     notifyListeners();
   }
 
-  List<UserList> getUserProfile() {
+  User getUserProfile() {
     return userProfile;
   }
 
@@ -84,8 +90,48 @@ class SelectedProvider extends ChangeNotifier {
     }
   }
 
+  void selectedChat(int seq) {
+    _seq = seq;
+    notifyListeners();
+  }
+
+  void selectedEmoji(Emoji emoji) {
+    _emoji = emoji;
+    notifyListeners();
+  }
+
+  void selectedFile(File file) {
+    _file = file;
+    notifyListeners();
+  }
+
+  void removeFile() {
+    _file = File("");
+    notifyListeners();
+  }
+
   String getSetMenu() {
     return _setMenu;
+  }
+
+  int getChat() {
+    return _seq;
+  }
+
+  Emoji getEmoji() {
+    return _emoji;
+  }
+
+  File getFile() {
+    return _file;
+  }
+
+  void setScroll(bool scrollToBottom) {
+    _scrollToBottom = _scrollToBottom;
+  }
+
+  bool getScroll() {
+    return _scrollToBottom;
   }
 }
 

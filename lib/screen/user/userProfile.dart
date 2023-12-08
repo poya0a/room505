@@ -15,10 +15,8 @@ class UserProfile extends StatefulWidget {
 
 class _UserProfileState extends State<UserProfile> {
   Widget build(BuildContext context) {
-    List<UserList> currentUser =
-        Provider.of<CreatedProvider>(context).getUserInfo();
-    List<UserList> user =
-        Provider.of<SelectedProvider>(context).getUserProfile();
+    User currentUser = Provider.of<CreatedProvider>(context).getUserInfo();
+    User user = Provider.of<SelectedProvider>(context).getUserProfile();
     double width =
         Provider.of<MediaQueryProvider>(context).getUserProfileWidth();
 
@@ -85,7 +83,7 @@ class _UserProfileState extends State<UserProfile> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5),
                         image: DecorationImage(
-                          image: AssetImage(user[0].image),
+                          image: AssetImage(user.image),
                           fit: BoxFit.fill,
                         ),
                       ),
@@ -97,7 +95,7 @@ class _UserProfileState extends State<UserProfile> {
                   Container(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      user[0].name,
+                      user.name,
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w900,
@@ -117,7 +115,7 @@ class _UserProfileState extends State<UserProfile> {
                         height: 10,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: user.isNotEmpty && user[0].status
+                          color: user.status
                               ? Palette.greenColor
                               : Palette.textSub,
                         ),
@@ -126,7 +124,7 @@ class _UserProfileState extends State<UserProfile> {
                         width: 10,
                       ),
                       Text(
-                        user[0].status ? "대화 가능" : "자리 비움",
+                        user.status ? "대화 가능" : "자리 비움",
                         style: const TextStyle(
                           fontSize: 12,
                         ),
@@ -136,12 +134,12 @@ class _UserProfileState extends State<UserProfile> {
                   const SizedBox(
                     height: 10,
                   ),
-                  if (user[0].updateStatus.isNotEmpty)
+                  if (user.updateStatus.isNotEmpty)
                     Row(
                       children: [
                         Icon(
                           IconData(
-                            int.parse(user[0].updateStatus[0], radix: 16),
+                            int.parse(user.updateStatus[0], radix: 16),
                             fontFamily: 'EmojiFontFamily',
                           ),
                           size: 16,
@@ -150,14 +148,14 @@ class _UserProfileState extends State<UserProfile> {
                           width: 10,
                         ),
                         Text(
-                          user[0].updateStatus[1],
+                          user.updateStatus[1],
                           style: const TextStyle(
                             fontSize: 12,
                           ),
                         ),
                       ],
                     ),
-                  if (user[0].updateStatus.isNotEmpty)
+                  if (user.updateStatus.isNotEmpty)
                     const SizedBox(
                       height: 10,
                     ),
@@ -174,7 +172,7 @@ class _UserProfileState extends State<UserProfile> {
                   Container(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      user[0].email,
+                      user.email,
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.normal,
@@ -197,7 +195,7 @@ class _UserProfileState extends State<UserProfile> {
                   Container(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      user[0].phone,
+                      user.phone,
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.normal,
@@ -217,11 +215,11 @@ class _UserProfileState extends State<UserProfile> {
                       ),
                     ),
                   ),
-                  if (user[0].introduce.isNotEmpty)
+                  if (user.introduce.isNotEmpty)
                     Container(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        user[0].introduce,
+                        user.introduce,
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.normal,
@@ -231,7 +229,7 @@ class _UserProfileState extends State<UserProfile> {
                   const SizedBox(
                     height: 10,
                   ),
-                  if (currentUser[0].seq == user[0].seq)
+                  if (currentUser.seq == user.seq)
                     Row(
                       children: [
                         GestureDetector(

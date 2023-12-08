@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:room505/selected.dart';
+import 'package:room505/created.dart';
 
 class Chat extends StatefulWidget {
   final int seq;
@@ -24,11 +25,14 @@ class _ChatState extends State<Chat> {
   Widget build(BuildContext context) {
     final selectedProvider =
         Provider.of<SelectedProvider>(context, listen: false);
-    String selectedMenu = Provider.of<SelectedProvider>(context).getMenu();
+    int selectedChat = Provider.of<SelectedProvider>(context).getChat();
 
     return GestureDetector(
       onTap: () {
-        selectedProvider.selectedMenu(widget.name);
+        Provider.of<CreatedProvider>(context, listen: false)
+            .loadChats(widget.seq, 0);
+        selectedProvider.selectedMenu("chat");
+        selectedProvider.selectedChat(widget.seq);
       },
       onDoubleTap: () {
         final RenderBox? box =
@@ -36,13 +40,15 @@ class _ChatState extends State<Chat> {
         final position = box?.localToGlobal(Offset.zero);
         if (position != null) {
           selectedProvider.selectedPosition(position.dy, position.dx);
+          selectedProvider.selectedSet("chat");
+          selectedProvider.selectedChat(widget.seq);
         }
       },
       child: Container(
         padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(5),
-          color: selectedMenu == widget.name
+          color: selectedChat == widget.seq
               ? Theme.of(context).dialogBackgroundColor
               : Theme.of(context).canvasColor,
         ),
@@ -53,7 +59,7 @@ class _ChatState extends State<Chat> {
                   ? Icons.chat_bubble
                   : IconData(int.parse(widget.emoji, radix: 16),
                       fontFamily: 'EmojiFontFamily'),
-              color: selectedMenu == widget.name
+              color: selectedChat == widget.seq
                   ? Theme.of(context).textTheme.headline1!.color
                   : Theme.of(context).textTheme.bodyText1!.color,
             ),
@@ -67,7 +73,7 @@ class _ChatState extends State<Chat> {
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
                 style: TextStyle(
-                  color: selectedMenu == widget.name
+                  color: selectedChat == widget.seq
                       ? Theme.of(context).textTheme.headline1!.color
                       : Theme.of(context).textTheme.bodyText1!.color,
                   fontSize: 14,

@@ -25,7 +25,7 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   bool showSpinner = false;
   final _formKey = GlobalKey<FormState>();
-  final List<UserList> users = generateTempUserList();
+  final List<User> users = generateTempUserList();
   String userEmail = '';
   String userPassword = '';
 
@@ -40,7 +40,7 @@ class _LoginState extends State<Login> {
     _tryValidation();
     try {
       if (userEmail.isNotEmpty && userPassword.isNotEmpty) {
-        List<UserList> findUsers = [];
+        List<User> findUsers = [];
 
         for (var user in users) {
           if (user.email == userEmail) {

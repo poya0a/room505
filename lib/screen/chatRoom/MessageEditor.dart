@@ -30,7 +30,7 @@ class _MessageEditorState extends State<MessageEditor> {
     _controller.clear();
 
     setState(() {
-      Provider.of<CreatedProvider>(context, listen: false).loadChat();
+      // Provider.of<CreatedProvider>(context, listen: false).loadChat();
     });
   }
 

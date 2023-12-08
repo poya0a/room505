@@ -36,7 +36,7 @@ class App extends StatelessWidget {
       Process.run('taskkill', ['/IM', 'room505.exe'])
           .then((ProcessResult results) {});
     }
-    List<UserList> user = Provider.of<CreatedProvider>(context).getUserInfo();
+    User user = Provider.of<CreatedProvider>(context).getUserInfo();
     return Consumer4<ThemeProvider, SelectedProvider, CreatedProvider,
             MediaQueryProvider>(
         builder: (context, themeProvider, selectedProvider, CreatedProvider,
@@ -52,7 +52,7 @@ class App extends StatelessWidget {
         theme: themeProvider.currentTheme,
         home: ChangeNotifierProvider.value(
           value: selectedProvider,
-          child: user.isNotEmpty ? const MainScreen() : const Login(),
+          child: user.seq != 0 ? const MainScreen() : const Login(),
         ),
       );
     });

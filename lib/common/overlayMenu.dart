@@ -63,7 +63,7 @@ class _OverlayMenuState extends State<OverlayMenu> {
           top: top - 30,
           left: left,
           child: Container(
-            width: 80,
+            width: 100,
             height: 101,
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(
@@ -84,7 +84,7 @@ class _OverlayMenuState extends State<OverlayMenu> {
                     });
                   },
                   child: Container(
-                    width: 80,
+                    width: 100,
                     height: 33,
                     padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
                     decoration: BoxDecoration(
@@ -108,7 +108,7 @@ class _OverlayMenuState extends State<OverlayMenu> {
                     });
                   },
                   child: Container(
-                    width: 80,
+                    width: 100,
                     height: 33,
                     padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
                     decoration: BoxDecoration(
@@ -132,7 +132,7 @@ class _OverlayMenuState extends State<OverlayMenu> {
                     });
                   },
                   child: Container(
-                    width: 80,
+                    width: 100,
                     height: 33,
                     padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
                     color: menuHover == "exitChat"

@@ -33,7 +33,7 @@ class _MainScreenState extends State<MainScreen> {
     final selectedProvider = Provider.of<SelectedProvider>(context);
     final createdProvider = Provider.of<CreatedProvider>(context);
     final mediaQueryProvider = Provider.of<MediaQueryProvider>(context);
-    List<UserList> user = createdProvider.getUserInfo();
+    User user = createdProvider.getUserInfo();
     MediaQueryData queryData = MediaQuery.of(context);
     double screenWidth = queryData.size.width;
     final _menuWidth = mediaQueryProvider.getUserMenuWidth();
@@ -43,8 +43,6 @@ class _MainScreenState extends State<MainScreen> {
     String selectedSetMenu = selectedProvider.getSetMenu();
     double top = selectedProvider.getPositionTop();
     double left = selectedProvider.getPositionLeft();
-    final chatList = createdProvider.getChatList();
-    bool selectedChat = chatList.any((chat) => chat.name == selectedMenu);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -80,8 +78,8 @@ class _MainScreenState extends State<MainScreen> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(5.0),
                       child: Image.asset(
-                        user.isNotEmpty && user[0].image.isNotEmpty
-                            ? user[0].image
+                        user.image.isNotEmpty
+                            ? user.image
                             : 'images/profile.png',
                         fit: BoxFit.cover,
                       ),
@@ -96,9 +94,7 @@ class _MainScreenState extends State<MainScreen> {
                     height: 10,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: user.isNotEmpty && user[0].status
-                          ? Palette.greenColor
-                          : Palette.textSub,
+                      color: user.status ? Palette.greenColor : Palette.textSub,
                     ),
                   ),
                 ),
@@ -177,7 +173,7 @@ class _MainScreenState extends State<MainScreen> {
                     ],
                   ),
                   Container(
-                    width: userProfile.isEmpty
+                    width: userProfile.seq == 0
                         ? MediaQuery.of(context).size.width - _menuWidth
                         : MediaQuery.of(context).size.width -
                             _menuWidth -
@@ -190,11 +186,11 @@ class _MainScreenState extends State<MainScreen> {
                                 ? const Connect()
                                 : selectedMenu == "more"
                                     ? const More()
-                                    : selectedChat
+                                    : selectedMenu == "chat"
                                         ? const ChatRoom()
                                         : null,
                   ),
-                  if (userProfile.isNotEmpty)
+                  if (userProfile.seq != 0)
                     Stack(
                       children: [
                         Container(
@@ -237,7 +233,10 @@ class _MainScreenState extends State<MainScreen> {
               ),
               if (selectedSetMenu == "settingMenu") const SettingMenu(),
               if (selectedSetMenu == "settingProfile") const SettingProfile(),
-              if (top != 0.0 && left != 0.0 && _menuWidth != 0)
+              if (top != 0.0 &&
+                  left != 0.0 &&
+                  _menuWidth != 0 &&
+                  selectedSetMenu == "chat")
                 const OverlayMenu(),
             ],
           ),

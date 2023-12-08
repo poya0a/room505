@@ -1,6 +1,6 @@
 import 'package:room505/selected.dart';
 
-class UserList {
+class User {
   final int seq;
   final String name;
   final String email;
@@ -11,7 +11,7 @@ class UserList {
   final String time;
   final String introduce;
 
-  UserList(this.seq, this.name, this.email, this.phone, this.image, this.status,
+  User(this.seq, this.name, this.email, this.phone, this.image, this.status,
       this.updateStatus, this.time, this.introduce);
 
   Map<String, dynamic> toJson() {
@@ -28,8 +28,8 @@ class UserList {
     };
   }
 
-  factory UserList.fromJson(Map<String, dynamic> json) {
-    return UserList(
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
       json['seq'],
       json['name'],
       json['email'],
@@ -45,32 +45,62 @@ class UserList {
 
 class ChatList {
   final int seq;
-  final int sortingNumber;
   final String name;
   final String emoji;
   final List<AddList> userList;
 
-  ChatList(this.seq, this.sortingNumber, this.name, this.emoji, this.userList);
+  ChatList(this.seq, this.name, this.emoji, this.userList);
 
-  Map<String, dynamic> toJson() {
-    return {
-      'seq': seq,
-      'sortingNumber': sortingNumber,
-      'name': name,
-      'emoji': emoji,
-      'userList': userList.map((user) => user.toJson()).toList(),
-    };
-  }
-
-  factory ChatList.fromJson(Map<String, dynamic> json) {
+  factory ChatList.fromJson(Map<dynamic, dynamic> json) {
     return ChatList(
       json['seq'],
-      json['sortingNumber'],
       json['name'],
       json['emoji'],
       (json['userList'] as List<dynamic>)
           .map((userJson) => AddList.fromJson(userJson))
           .toList(),
+    );
+  }
+}
+
+class Message {
+  final int seq;
+  final String text;
+  final DateTime timestamp;
+  final String userName;
+  final String userImage;
+  late bool timeCheck;
+
+  Message({
+    required this.seq,
+    required this.text,
+    required this.timestamp,
+    required this.userName,
+    required this.userImage,
+    bool? timeCheck,
+  }) {
+    this.timeCheck = timeCheck ?? true;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'seq': seq,
+      'text': text,
+      'timestamp': timestamp.toIso8601String(),
+      'userName': userName,
+      'userImage': userImage,
+      'timeCheck': timeCheck,
+    };
+  }
+
+  factory Message.fromJson(Map<String, dynamic> json) {
+    return Message(
+      seq: json['seq'],
+      text: json['text'],
+      timestamp: DateTime.parse(json['timestamp']),
+      userName: json['userName'],
+      userImage: json['userImage'],
+      timeCheck: json['timeCheck'],
     );
   }
 }

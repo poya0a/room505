@@ -15,14 +15,14 @@ class UserSelectDialog extends StatefulWidget {
 
 class _UserSelectDialogState extends State<UserSelectDialog> {
   ScrollController _scrollController = ScrollController();
-  final List<UserList> users = generateTempUserList();
-  List<UserList> userList = [];
+  final List<User> users = generateTempUserList();
+  List<User> userList = [];
   List<int> checkedSeq = [];
 
   bool _checked = false;
   bool _buttonEnabled = false;
 
-  void _addUser(UserList userData) {
+  void _addUser(User userData) {
     final userToAdd =
         AddList(userData.seq, userData.name, userData.email, userData.image);
     final userList = Provider.of<SelectedProvider>(context, listen: false);

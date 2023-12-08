@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:room505/config/palette.dart';
@@ -20,8 +20,8 @@ class CreateChat extends StatefulWidget {
 }
 
 class _CreateChatState extends State<CreateChat> {
+  User userInfo = User(0, '', '', '', '', false, [], '', '');
   List<ChatList> chatList = [];
-  List<ChatList> chatRoom = [];
   List<AddList> addList = [];
 
   bool emojiShowing = false;
@@ -34,6 +34,8 @@ class _CreateChatState extends State<CreateChat> {
   @override
   void initState() {
     super.initState();
+    userInfo =
+        Provider.of<CreatedProvider>(context, listen: false).getUserInfo();
     chatList =
         Provider.of<CreatedProvider>(context, listen: false).getChatList();
     addList =
@@ -68,20 +70,9 @@ class _CreateChatState extends State<CreateChat> {
   void _onTextFieldChanged(String value) {
     setState(() {
       title = value;
-      bool isTitleEmpty = title.isEmpty;
-      bool isChatListEmpty = chatList.isEmpty;
-      bool isTitleContainedInSessionChats =
-          chatList.any((chat) => value == chat.name);
-
-      if (isTitleEmpty) {
-        _buttonEnabled = false;
-      } else if (!isTitleEmpty &&
-          !isChatListEmpty &&
-          isTitleContainedInSessionChats) {
-        errorMessage = "이미 사용 중인 이름입니다.";
+      if (title.isEmpty) {
         _buttonEnabled = false;
       } else {
-        errorMessage = "";
         _buttonEnabled = true;
       }
     });
@@ -96,34 +87,58 @@ class _CreateChatState extends State<CreateChat> {
     );
   }
 
-  void _createChat() async {
+  Future<void> _createChat() async {
+    const String url = 'http://localhost:3000/createChatRoom';
     final seq = generateRandomNumber();
-    int sotingNumber = 0;
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(<String, dynamic>{
+          'seq': seq,
+          'name': title,
+          'emoji': emojiSelected,
+          'manager': userInfo,
+          'userList': addList,
+        }),
+      );
 
-    List<String>? chatsStringList = prefs.getStringList('chatList');
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final resultValue = responseData['result'];
 
-    if (chatsStringList != null) {
-      sotingNumber = chatsStringList.length + 1;
-      chatRoom = chatsStringList
-          .map((chatRoomJson) => ChatList.fromJson(json.decode(chatRoomJson)))
-          .toList();
+        if (resultValue != null && resultValue is bool) {
+          if (resultValue) {
+            setState(() {
+              Provider.of<SelectedProvider>(context, listen: false)
+                  .resetAddList();
+              Provider.of<CreatedProvider>(context, listen: false)
+                  .loadChatList();
+              Navigator.of(context).pop();
+            });
+          } else {
+            setState(() {
+              errorMessage = '이미 존재하는 채팅방입니다.';
+            });
+          }
+        } else {
+          setState(() {
+            errorMessage = '잘못된 형식의 응답입니다.';
+          });
+        }
+      } else {
+        setState(() {
+          errorMessage = '서버로부터 올바른 응답을 받지 못했습니다.';
+        });
+      }
+    } catch (error) {
+      setState(() {
+        errorMessage = '네트워크 오류가 발생하였습니다.';
+      });
     }
-
-    ChatList newChatRoom =
-        ChatList(seq, sotingNumber, title, emojiSelected, addList);
-    chatRoom.add(newChatRoom);
-
-    List<String> updatedChatRoomsStringList =
-        chatRoom.map((chatRoom) => json.encode(chatRoom.toJson())).toList();
-    prefs.setStringList('chatList', updatedChatRoomsStringList);
-
-    setState(() {
-      Provider.of<SelectedProvider>(context, listen: false).resetAddList();
-      Navigator.of(context).pop();
-      Provider.of<CreatedProvider>(context, listen: false).loadChatList();
-    });
   }
 
   @override

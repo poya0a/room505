@@ -1,29 +1,35 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 import 'package:room505/config/palette.dart';
 import 'package:flutter_chat_bubble/bubble_type.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:flutter_chat_bubble/clippers/chat_bubble_clipper_5.dart';
+import 'package:provider/provider.dart';
+import 'package:room505/created.dart';
+import 'package:room505/selected.dart';
+import 'package:room505/temp/tempClass.dart';
+import 'package:room505/temp/tempUserList.dart';
 
 class ChatBubbles extends StatefulWidget {
-  final String userId;
+  final int userSeq;
   final String userName;
   final String userImage;
-  final bool currentUser;
   final String message;
-  final String sendTime;
-  final bool today;
-  final String date;
+  final DateTime dateTime;
+  final bool dateCheck;
+  final bool timeCheck;
   final String read;
 
   const ChatBubbles({
-    required this.userId,
+    required this.userSeq,
     required this.userName,
     required this.userImage,
-    required this.currentUser,
     required this.message,
-    required this.sendTime,
-    required this.today,
-    required this.date,
+    required this.dateTime,
+    required this.dateCheck,
+    required this.timeCheck,
     required this.read,
   });
 
@@ -34,31 +40,38 @@ class ChatBubbles extends StatefulWidget {
 class _ChatBubblesState extends State<ChatBubbles> {
   @override
   Widget build(BuildContext context) {
+    User user = Provider.of<CreatedProvider>(context).getUserInfo();
+    bool currentUser = user.seq == widget.userSeq;
+    String sendDate = DateFormat('yyyy년 MM월 dd일').format(DateTime(
+        widget.dateTime.year, widget.dateTime.month, widget.dateTime.day));
+
+    String sendTime = DateFormat('hh:mm a').format(widget.dateTime);
+
     return Column(
       children: [
         Container(
+          margin: const EdgeInsets.only(top: 20),
           decoration: BoxDecoration(
             color: Theme.of(context).textTheme.headline1!.color,
             borderRadius: const BorderRadius.all(
               Radius.circular(5),
             ),
           ),
-          child: !widget.today
+          child: widget.dateCheck
               ? Padding(
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 3),
                   child: Text(
-                    widget.date,
+                    sendDate,
                     style: const TextStyle(fontSize: 12, color: Colors.white),
                   ),
                 )
               : null,
         ),
         Row(
-          mainAxisAlignment: widget.currentUser
-              ? MainAxisAlignment.end
-              : MainAxisAlignment.start,
+          mainAxisAlignment:
+              currentUser ? MainAxisAlignment.end : MainAxisAlignment.start,
           children: [
-            if (widget.currentUser)
+            if (currentUser)
               Row(
                 children: [
                   widget.read != "0"
@@ -79,7 +92,7 @@ class _ChatBubblesState extends State<ChatBubbles> {
                         clipper:
                             ChatBubbleClipper5(type: BubbleType.sendBubble),
                         alignment: Alignment.topRight,
-                        margin: EdgeInsets.only(top: 20),
+                        margin: const EdgeInsets.only(top: 20),
                         backGroundColor: Palette.mainColor,
                         child: Container(
                           constraints: const BoxConstraints(
@@ -87,21 +100,23 @@ class _ChatBubblesState extends State<ChatBubbles> {
                           ),
                           child: Text(
                             widget.message,
-                            style: TextStyle(color: Colors.white),
+                            style: const TextStyle(color: Colors.white),
                             softWrap: true,
                           ),
                         ),
                       ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      Text(
-                        widget.sendTime,
-                        style: TextStyle(
-                            fontSize: 12,
-                            color:
-                                Theme.of(context).textTheme.headline1!.color),
-                      )
+                      if (widget.timeCheck)
+                        const SizedBox(
+                          height: 5,
+                        ),
+                      if (widget.timeCheck)
+                        Text(
+                          sendTime,
+                          style: TextStyle(
+                              fontSize: 12,
+                              color:
+                                  Theme.of(context).textTheme.headline1!.color),
+                        )
                     ],
                   ),
                   const SizedBox(
@@ -121,7 +136,7 @@ class _ChatBubblesState extends State<ChatBubbles> {
                   ),
                 ],
               ),
-            if (!widget.currentUser)
+            if (!currentUser)
               Padding(
                 padding: const EdgeInsets.only(left: 10),
                 child: Row(
@@ -131,24 +146,14 @@ class _ChatBubblesState extends State<ChatBubbles> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              contentPadding: EdgeInsets.zero,
-                              content: Container(
-                                width: 260,
-                                height: 400,
-                                decoration: const BoxDecoration(
-                                  color: Colors.transparent,
-                                ),
-                                child: const SingleChildScrollView(
-                                  scrollDirection: Axis.vertical,
-                                ),
-                              ),
-                            );
-                          },
-                        );
+                        final List<User> users = generateTempUserList();
+                        for (var user in users) {
+                          if (user.seq == widget.userSeq) {
+                            Provider.of<SelectedProvider>(context,
+                                    listen: false)
+                                .selectedUserProfile(user);
+                          }
+                        }
                       },
                       child: Container(
                         width: 40,
@@ -179,7 +184,7 @@ class _ChatBubblesState extends State<ChatBubbles> {
                           clipper: ChatBubbleClipper5(
                               type: BubbleType.receiverBubble),
                           backGroundColor: Theme.of(context).shadowColor,
-                          margin: EdgeInsets.only(top: 5),
+                          margin: const EdgeInsets.only(top: 5),
                           child: Container(
                             constraints: BoxConstraints(
                               maxWidth: MediaQuery.of(context).size.width * 0.7,
@@ -188,20 +193,22 @@ class _ChatBubblesState extends State<ChatBubbles> {
                               children: [
                                 Text(
                                   widget.message,
-                                  style: TextStyle(color: Palette.text),
+                                  style: const TextStyle(color: Palette.text),
                                 ),
                               ],
                             ),
                           ),
                         ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        Text(
-                          widget.sendTime,
-                          style: const TextStyle(
-                              fontSize: 12, color: Palette.text),
-                        )
+                        if (widget.timeCheck)
+                          const SizedBox(
+                            height: 5,
+                          ),
+                        if (widget.timeCheck)
+                          Text(
+                            sendTime,
+                            style: const TextStyle(
+                                fontSize: 12, color: Palette.text),
+                          )
                       ],
                     ),
                     const SizedBox(
@@ -210,7 +217,7 @@ class _ChatBubblesState extends State<ChatBubbles> {
                     widget.read != "0"
                         ? Text(
                             widget.read,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Palette.yellowColor,
                             ),
                           )

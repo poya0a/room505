@@ -93,8 +93,8 @@ class _SettingMenuState extends State<SettingMenu> {
           top: 0,
           left: 20,
           child: Container(
-            width: 80,
-            height: 101,
+            width: 100,
+            height: 134,
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(
                 Radius.circular(5.0),
@@ -118,7 +118,7 @@ class _SettingMenuState extends State<SettingMenu> {
                       _exitApp(context, false);
                     },
                     child: Container(
-                      width: 80,
+                      width: 100,
                       height: 33,
                       padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
                       decoration: BoxDecoration(
@@ -147,7 +147,7 @@ class _SettingMenuState extends State<SettingMenu> {
                       _exit();
                     },
                     child: Container(
-                      width: 80,
+                      width: 100,
                       height: 33,
                       padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
                       decoration: BoxDecoration(
@@ -173,16 +173,45 @@ class _SettingMenuState extends State<SettingMenu> {
                   },
                   child: GestureDetector(
                     onTap: () async {
+                      _exit();
+                    },
+                    child: Container(
+                      width: 100,
+                      height: 33,
+                      padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Theme.of(context).shadowColor,
+                            width: 1,
+                          ),
+                        ),
+                        color: menuHover == "exit"
+                            ? Theme.of(context).shadowColor
+                            : Theme.of(context).scaffoldBackgroundColor,
+                      ),
+                      child: const Text("종료"),
+                    ),
+                  ),
+                ),
+                MouseRegion(
+                  onEnter: (_) {
+                    setState(() {
+                      menuHover = "setting";
+                    });
+                  },
+                  child: GestureDetector(
+                    onTap: () async {
                       _exitApp(context, true);
                     },
                     child: Container(
-                      width: 80,
+                      width: 100,
                       height: 33,
                       padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
-                      color: menuHover == "exit"
+                      color: menuHover == "setting"
                           ? Theme.of(context).shadowColor
                           : Theme.of(context).scaffoldBackgroundColor,
-                      child: const Text("종료"),
+                      child: const Text("환경 설정"),
                     ),
                   ),
                 ),

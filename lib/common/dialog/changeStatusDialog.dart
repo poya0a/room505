@@ -57,27 +57,26 @@ class _ChangeStatusDialogState extends State<ChangeStatusDialog> {
 
   @override
   Widget build(BuildContext context) {
-    List<UserList> user = Provider.of<CreatedProvider>(context).getUserInfo();
-    List<UserList> selectedUser =
-        Provider.of<SelectedProvider>(context).getUserProfile();
+    User user = Provider.of<CreatedProvider>(context).getUserInfo();
+    User selectedUser = Provider.of<SelectedProvider>(context).getUserProfile();
     List changeStatus = [];
 
     void _changeStatus() async {
-      List<UserList> updateStatus = [];
+      List<User> updateStatus = [];
       changeStatus.add(emojiSelected);
       changeStatus.add(statusString);
 
       updateStatus.add(
-        UserList(
-          user[0].seq,
-          user[0].name,
-          user[0].email,
-          user[0].phone,
-          user[0].image,
-          user[0].status,
+        User(
+          user.seq,
+          user.name,
+          user.email,
+          user.phone,
+          user.image,
+          user.status,
           changeStatus,
-          user[0].time,
-          user[0].introduce,
+          user.time,
+          user.introduce,
         ),
       );
 
@@ -91,7 +90,7 @@ class _ChangeStatusDialogState extends State<ChangeStatusDialog> {
         Navigator.of(context).pop();
         Provider.of<CreatedProvider>(context, listen: false).loadUserInfo();
         Provider.of<SelectedProvider>(context, listen: false).selectedSet("");
-        if (selectedUser.isNotEmpty && selectedUser[0].seq == user[0].seq) {
+        if (selectedUser.seq != 0 && selectedUser.seq == user.seq) {
           Provider.of<SelectedProvider>(context, listen: false)
               .resetUserProfile();
           Provider.of<SelectedProvider>(context, listen: false)

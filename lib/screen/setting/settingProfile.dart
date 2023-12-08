@@ -20,24 +20,23 @@ class _SettingProfileState extends State<SettingProfile> {
 
   @override
   Widget build(BuildContext context) {
-    List<UserList> user = Provider.of<CreatedProvider>(context).getUserInfo();
-    List<UserList> selectedUser =
-        Provider.of<SelectedProvider>(context).getUserProfile();
+    User user = Provider.of<CreatedProvider>(context).getUserInfo();
+    User selectedUser = Provider.of<SelectedProvider>(context).getUserProfile();
 
     void changeStatus(type) async {
-      List<UserList> updateStatus = [];
+      List<User> updateStatus = [];
 
       updateStatus.add(
-        UserList(
-          user[0].seq,
-          user[0].name,
-          user[0].email,
-          user[0].phone,
-          user[0].image,
-          type == "switchStatus" ? !user[0].status : user[0].status,
-          type == "removeStatus" ? [] : user[0].updateStatus,
-          user[0].time,
-          user[0].introduce,
+        User(
+          user.seq,
+          user.name,
+          user.email,
+          user.phone,
+          user.image,
+          type == "switchStatus" ? !user.status : user.status,
+          type == "removeStatus" ? [] : user.updateStatus,
+          user.time,
+          user.introduce,
         ),
       );
 
@@ -50,7 +49,7 @@ class _SettingProfileState extends State<SettingProfile> {
       setState(() {
         Provider.of<CreatedProvider>(context, listen: false).loadUserInfo();
         Provider.of<SelectedProvider>(context, listen: false).selectedSet("");
-        if (selectedUser.isNotEmpty && selectedUser[0].seq == user[0].seq) {
+        if (selectedUser.seq != 0 && selectedUser.seq == user.seq) {
           Provider.of<SelectedProvider>(context, listen: false)
               .resetUserProfile();
           Provider.of<SelectedProvider>(context, listen: false)
@@ -83,7 +82,7 @@ class _SettingProfileState extends State<SettingProfile> {
           right: 20,
           child: Container(
             width: 200,
-            height: user[0].updateStatus.isEmpty ? 177 : 210,
+            height: user.updateStatus.isEmpty ? 177 : 210,
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(
                 Radius.circular(5.0),
@@ -115,8 +114,8 @@ class _SettingProfileState extends State<SettingProfile> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(5.0),
                             child: Image.asset(
-                              user.isNotEmpty && user[0].image.isNotEmpty
-                                  ? user[0].image
+                              user.image.isNotEmpty
+                                  ? user.image
                                   : 'images/profile.png',
                               fit: BoxFit.cover,
                             ),
@@ -127,7 +126,7 @@ class _SettingProfileState extends State<SettingProfile> {
                             Padding(
                               padding: const EdgeInsets.only(top: 10),
                               child: Text(
-                                user[0].name,
+                                user.name,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -140,7 +139,7 @@ class _SettingProfileState extends State<SettingProfile> {
                                   height: 10,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: user.isNotEmpty && user[0].status
+                                    color: user.status
                                         ? Palette.greenColor
                                         : Palette.textSub,
                                   ),
@@ -149,7 +148,7 @@ class _SettingProfileState extends State<SettingProfile> {
                                   width: 5,
                                 ),
                                 Text(
-                                  user[0].status ? "대화 가능" : "자리 비움",
+                                  user.status ? "대화 가능" : "자리 비움",
                                   style: const TextStyle(
                                     fontSize: 12,
                                   ),
@@ -198,10 +197,10 @@ class _SettingProfileState extends State<SettingProfile> {
                         child: Row(
                           children: [
                             Icon(
-                              user[0].updateStatus.isEmpty
+                              user.updateStatus.isEmpty
                                   ? Icons.tag_faces
                                   : IconData(
-                                      int.parse(user[0].updateStatus[0],
+                                      int.parse(user.updateStatus[0],
                                           radix: 16),
                                       fontFamily: 'EmojiFontFamily',
                                     ),
@@ -211,9 +210,9 @@ class _SettingProfileState extends State<SettingProfile> {
                               width: 10,
                             ),
                             Text(
-                              user[0].updateStatus.isEmpty
+                              user.updateStatus.isEmpty
                                   ? "상태 업데이트"
-                                  : user[0].updateStatus[1],
+                                  : user.updateStatus[1],
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                               style: const TextStyle(
@@ -226,7 +225,7 @@ class _SettingProfileState extends State<SettingProfile> {
                     ),
                   ),
                 ),
-                if (user[0].updateStatus.isNotEmpty)
+                if (user.updateStatus.isNotEmpty)
                   MouseRegion(
                     onEnter: (_) {
                       setState(() {
@@ -281,7 +280,7 @@ class _SettingProfileState extends State<SettingProfile> {
                             ? Theme.of(context).shadowColor
                             : Theme.of(context).scaffoldBackgroundColor,
                       ),
-                      child: Text(user[0].status ? "자리 비움으로 설정" : "대화 가능으로 설정"),
+                      child: Text(user.status ? "자리 비움으로 설정" : "대화 가능으로 설정"),
                     ),
                   ),
                 ),
@@ -296,7 +295,7 @@ class _SettingProfileState extends State<SettingProfile> {
                       Provider.of<SelectedProvider>(context, listen: false)
                           .selectedSet("");
                       Provider.of<SelectedProvider>(context, listen: false)
-                          .selectedUserProfile(user[0]);
+                          .selectedUserProfile(user);
                     },
                     child: Container(
                       width: 200,
