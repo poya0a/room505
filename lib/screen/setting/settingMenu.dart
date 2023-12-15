@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:room505/selected.dart';
 import 'package:room505/created.dart';
 import 'package:room505/main.dart';
+import 'package:room505/config/palette.dart';
 
 class SettingMenu extends StatefulWidget {
   const SettingMenu({super.key});
@@ -32,14 +33,26 @@ class _SettingMenuState extends State<SettingMenu> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: exit ? const Text('종료') : const Text('로그아웃'),
-          content: exit ? const Text('종료 하시겠습니까?') : const Text('로그아웃 하시겠습니까?'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          title: Text(
+            exit ? '종료' : '로그아웃',
+            style: const TextStyle(
+              color: Palette.blueColor,
+              fontSize: 14,
+            ),
+          ),
+          content: Text(exit ? '종료 하시겠습니까?' : '로그아웃 하시겠습니까?'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('취소'),
+              child: const Text(
+                '취소',
+                style: TextStyle(color: Palette.blueColor),
+              ),
             ),
             TextButton(
               onPressed: () async {
@@ -60,7 +73,10 @@ class _SettingMenuState extends State<SettingMenu> {
                   _exit();
                 }
               },
-              child: exit ? const Text('종료') : const Text('로그아웃'),
+              child: Text(
+                exit ? '종료' : '로그아웃',
+                style: const TextStyle(color: Palette.blueColor),
+              ),
             ),
           ],
         );

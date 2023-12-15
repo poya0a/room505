@@ -6,9 +6,10 @@ import 'package:room505/common/customTextFromField.dart';
 import 'package:room505/main.dart';
 import 'package:provider/provider.dart';
 import 'package:room505/created.dart';
+import 'package:room505/config/palette.dart';
 import 'package:room505/temp/tempClass.dart';
 import 'package:room505/temp/tempUserList.dart';
-import 'package:room505/auth/join.dart';
+import 'package:room505/auth/terms.dart';
 import 'package:room505/auth/findId.dart';
 import 'package:room505/auth/findPassword.dart';
 import 'package:room505/common/buttonBorder.dart';
@@ -68,13 +69,19 @@ class _LoginState extends State<Login> {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
                 content: const Text('아이디와 비밀번호를 확인해 주세요.'),
                 actions: <Widget>[
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
-                    child: const Text('닫기'),
+                    child: const Text(
+                      '닫기',
+                      style: TextStyle(color: Palette.blueColor),
+                    ),
                   ),
                 ],
               );
@@ -127,7 +134,7 @@ class _LoginState extends State<Login> {
   void handleButtonJoin() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Join()),
+      MaterialPageRoute(builder: (context) => Terms()),
     );
   }
 
@@ -162,8 +169,8 @@ class _LoginState extends State<Login> {
                   height: MediaQuery.of(context).size.height,
                   width: MediaQuery.of(context).size.width,
                   constraints: const BoxConstraints(
-                    minWidth: 800,
-                    minHeight: 800,
+                    minWidth: 300,
+                    minHeight: 530,
                   ),
                   child: Container(
                     decoration: const BoxDecoration(

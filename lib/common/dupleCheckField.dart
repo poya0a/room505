@@ -8,6 +8,8 @@ class DupleCheckField extends StatefulWidget {
   final String hintText;
   final bool obscureText;
   final ValueChanged<String>? onChanged;
+  final VoidCallback? onTap;
+  bool buttonDisabled;
   final String errorMessage;
 
   DupleCheckField({
@@ -17,6 +19,8 @@ class DupleCheckField extends StatefulWidget {
     required this.hintText,
     this.obscureText = false,
     this.onChanged,
+    this.onTap,
+    required this.buttonDisabled,
     this.errorMessage = "",
   });
 
@@ -73,16 +77,22 @@ class _DupleCheckFieldState extends State<DupleCheckField> {
             Container(
               width: 100,
               child: GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  if (!widget.buttonDisabled) {
+                    widget.onTap!();
+                  }
+                },
                 child: Container(
-                  padding: EdgeInsets.all(14.0),
+                  padding: const EdgeInsets.all(14.0),
                   decoration: BoxDecoration(
-                    color: Palette.subColor,
-                    borderRadius: BorderRadius.all(
+                    color: widget.buttonDisabled
+                        ? Palette.borderColor
+                        : Palette.subColor,
+                    borderRadius: const BorderRadius.all(
                       Radius.circular(5.0),
                     ),
                   ),
-                  child: Center(
+                  child: const Center(
                     child: Text(
                       "중복 확인",
                       style: TextStyle(
@@ -99,11 +109,11 @@ class _DupleCheckFieldState extends State<DupleCheckField> {
         ),
         if (widget.errorMessage != "")
           Container(
-            padding: EdgeInsets.only(top: 10),
+            padding: const EdgeInsets.only(top: 10),
             child: Text(
               widget.errorMessage,
               textAlign: TextAlign.left,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Palette.subColor,
                 fontSize: 12,
               ),

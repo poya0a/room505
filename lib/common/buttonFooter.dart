@@ -27,29 +27,22 @@ class _ButtonFooterState extends State<ButtonFooter> {
     return Container(
       height: 50.0,
       child: ElevatedButton(
-        onPressed: widget.onPressed,
-        child: Text(
-          currentValue,
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16.0,
-            fontWeight: FontWeight.bold,
+          onPressed: widget.onPressed,
+          child: Text(
+            currentValue,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16.0,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        style: widget.disabled
-            ? ElevatedButton.styleFrom(
-                backgroundColor: Palette.borderColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(0.0),
-                ),
-              )
-            : ElevatedButton.styleFrom(
-                backgroundColor: Palette.mainColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(0.0),
-                ),
-              ),
-      ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor:
+                widget.disabled ? Palette.borderColor : Palette.mainColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(0.0),
+            ),
+          )),
     );
   }
 }
