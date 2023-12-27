@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:room505/auth.dart';
 import 'package:room505/config/palette.dart';
 import 'package:provider/provider.dart';
 import 'package:room505/mediaQuery.dart';
 import 'package:room505/selected.dart';
-import 'package:room505/created.dart';
-import 'package:room505/temp/tempClass.dart';
+import 'package:room505/auth/authClass.dart';
+import 'package:room505/screen/chatRoom/chatClass.dart';
 
 class UserProfile extends StatefulWidget {
   const UserProfile({super.key});
@@ -15,8 +16,8 @@ class UserProfile extends StatefulWidget {
 
 class _UserProfileState extends State<UserProfile> {
   Widget build(BuildContext context) {
-    User currentUser = Provider.of<CreatedProvider>(context).getUserInfo();
-    User user = Provider.of<SelectedProvider>(context).getUserProfile();
+    User currentUser = Provider.of<AuthProvider>(context).getUserInfo();
+    Emps user = Provider.of<SelectedProvider>(context).getUserProfile();
     double width =
         Provider.of<MediaQueryProvider>(context).getUserProfileWidth();
 
@@ -83,7 +84,9 @@ class _UserProfileState extends State<UserProfile> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5),
                         image: DecorationImage(
-                          image: AssetImage(user.image),
+                          image: AssetImage(user.image != ""
+                              ? user.image
+                              : 'images/profile.png'),
                           fit: BoxFit.fill,
                         ),
                       ),
@@ -229,7 +232,7 @@ class _UserProfileState extends State<UserProfile> {
                   const SizedBox(
                     height: 10,
                   ),
-                  if (currentUser.seq == user.seq)
+                  if (currentUser.uid == user.uid)
                     Row(
                       children: [
                         GestureDetector(

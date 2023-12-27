@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:room505/auth.dart';
+import 'package:room505/socket.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:room505/common/customTextFromField.dart';
+import 'package:http/http.dart' as http;
+import 'package:room505/config/conf.dart';
 import 'package:room505/main.dart';
 import 'package:provider/provider.dart';
-import 'package:room505/created.dart';
 import 'package:room505/config/palette.dart';
-import 'package:room505/temp/tempClass.dart';
-import 'package:room505/temp/tempUserList.dart';
 import 'package:room505/auth/terms.dart';
 import 'package:room505/auth/findId.dart';
 import 'package:room505/auth/findPassword.dart';
@@ -26,7 +27,6 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   bool showSpinner = false;
   final _formKey = GlobalKey<FormState>();
-  final List<User> users = generateTempUserList();
   String userEmail = '';
   String userPassword = '';
 
@@ -37,60 +37,113 @@ class _LoginState extends State<Login> {
     }
   }
 
+  void showResultDialog(bool register) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          content:
+              Text(register ? '아이디와 비밀번호를 확인해 주세요.' : "메일 인증이 완료되지 않았습니다."),
+          actions: <Widget>[
+            Row(
+              children: [
+                if (!register)
+                  TextButton(
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+
+                      final String url = requests("RESEND");
+
+                      final response = await http.post(Uri.parse(url),
+                          headers: <String, String>{
+                            'Content-Type': 'application/json; charset=UTF-8',
+                          },
+                          body: jsonEncode({
+                            'email': userEmail,
+                            'userEmail': userEmail,
+                            'deviceid': userEmail,
+                            'device': "WEB",
+                          }));
+
+                      // if (response.statusCode == 200) {
+                    },
+                    child: const Text(
+                      '인증 메일 재전송',
+                      style: TextStyle(color: Palette.blueColor),
+                    ),
+                  ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text(
+                    '닫기',
+                    style: TextStyle(color: Palette.blueColor),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void handleButtonLogin() async {
     _tryValidation();
     try {
       if (userEmail.isNotEmpty && userPassword.isNotEmpty) {
-        List<User> findUsers = [];
+        final String url = requests("LOGIN");
 
-        for (var user in users) {
-          if (user.email == userEmail) {
-            findUsers.add(user);
-          }
-        }
-        if (findUsers.isNotEmpty) {
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-
-          List<String> findUsersJson =
-              findUsers.map((user) => jsonEncode(user.toJson())).toList();
-          await prefs.setStringList('user', findUsersJson);
-          _formKey.currentState!.reset();
-
-          setState(() {
-            Provider.of<CreatedProvider>(context, listen: false).loadUserInfo();
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) => const App(),
-              ),
-            );
-          });
-        } else {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5.0),
-                ),
-                content: const Text('아이디와 비밀번호를 확인해 주세요.'),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text(
-                      '닫기',
-                      style: TextStyle(color: Palette.blueColor),
-                    ),
-                  ),
-                ],
-              );
+        final response = await http.post(Uri.parse(url),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
             },
-          );
+            body: jsonEncode({
+              'email': userEmail,
+              'password': userPassword,
+              'deviceid': userEmail,
+              'device': "WEB",
+            }));
+
+        if (response.statusCode == 200) {
+          final responseData = jsonDecode(response.body);
+          final resultCode = responseData['result'];
+          final resultData = responseData['data'];
+          if (resultCode == "success") {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+
+            await prefs.setString('devicekey', resultData['devicekey']);
+            await prefs.setString('uid', resultData['uid']);
+
+            _formKey.currentState!.reset();
+
+            setState(() {
+              Provider.of<AuthProvider>(context, listen: false).loadUserInfo();
+              Provider.of<SocketProvider>(context, listen: false).myInfo(
+                  userEmail, resultData['uid'], resultData['devicekey']);
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => const App(),
+                ),
+              );
+            });
+          } else if (resultData == "error") {
+            showResultDialog(false);
+          } else {
+            showResultDialog(true);
+          }
         }
       }
     } catch (e) {
       print(e);
+    } finally {
+      setState(() {
+        showSpinner = false;
+      });
     }
   }
 
@@ -134,21 +187,21 @@ class _LoginState extends State<Login> {
   void handleButtonJoin() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Terms()),
+      MaterialPageRoute(builder: (context) => const Terms()),
     );
   }
 
   void handleButtonFindId() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => FindId()),
+      MaterialPageRoute(builder: (context) => const FindId()),
     );
   }
 
   void handleButtonFindPassword() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => FindPassword()),
+      MaterialPageRoute(builder: (context) => const FindPassword()),
     );
   }
 
@@ -187,7 +240,7 @@ class _LoginState extends State<Login> {
                       children: [
                         Container(
                           child: Container(
-                            padding: EdgeInsets.only(top: 90, left: 20),
+                            padding: const EdgeInsets.only(top: 90, left: 20),
                             child: Center(
                               child: Image.asset(
                                 'images/logo_transparent.png',

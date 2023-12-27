@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
+import 'dart:core';
 import 'package:provider/provider.dart';
+import 'package:room505/auth.dart';
+import 'package:room505/chat.dart';
 import 'package:room505/selected.dart';
-import 'package:room505/created.dart';
 
 class Chat extends StatefulWidget {
-  final int seq;
+  final String roomKey;
   final String name;
   final String emoji;
+  final String lastMsg;
+  final int time;
 
   Chat({
-    required this.seq,
+    required this.roomKey,
     required this.name,
     required this.emoji,
+    required this.lastMsg,
+    required this.time,
   });
 
   @override
@@ -20,19 +26,48 @@ class Chat extends StatefulWidget {
 
 class _ChatState extends State<Chat> {
   final GlobalKey _globalKey = GlobalKey();
+  Map<String, String> user = {};
+  String lastDate = "";
+
+  void convertUnixTimeToFormattedDate() {
+    DateTime now = DateTime.now();
+    var dateTime = DateTime.fromMillisecondsSinceEpoch(widget.time * 1000);
+
+    if (now.year == dateTime.year &&
+        now.month == dateTime.month &&
+        now.day == dateTime.day) {
+      String ampm;
+
+      if (dateTime.hour < 12) {
+        ampm = '오전';
+      } else {
+        ampm = '오후';
+      }
+
+      lastDate = '${ampm} ${dateTime.hour}:${dateTime.minute}';
+    } else {
+      lastDate =
+          '${dateTime.month.toString().padLeft(2, '0')}월 ${dateTime.day.toString().padLeft(2, '0')}일';
+    }
+  }
+
+  void initState() {
+    super.initState();
+    user = Provider.of<AuthProvider>(context, listen: false).getUser();
+  }
 
   @override
   Widget build(BuildContext context) {
     final selectedProvider =
         Provider.of<SelectedProvider>(context, listen: false);
-    int selectedChat = Provider.of<SelectedProvider>(context).getChat();
+    String selectedChat =
+        Provider.of<ChatProvider>(context).getChatRoom().roomKey;
 
     return GestureDetector(
       onTap: () {
-        Provider.of<CreatedProvider>(context, listen: false)
-            .loadChats(widget.seq, 0);
+        Provider.of<ChatProvider>(context, listen: false)
+            .loadChats(user, widget.roomKey);
         selectedProvider.selectedMenu("chat");
-        selectedProvider.selectedChat(widget.seq);
       },
       onDoubleTap: () {
         final RenderBox? box =
@@ -41,25 +76,24 @@ class _ChatState extends State<Chat> {
         if (position != null) {
           selectedProvider.selectedPosition(position.dy, position.dx);
           selectedProvider.selectedSet("chat");
-          selectedProvider.selectedChat(widget.seq);
         }
       },
       child: Container(
         padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(5),
-          color: selectedChat == widget.seq
+          color: selectedChat == widget.roomKey
               ? Theme.of(context).dialogBackgroundColor
               : Theme.of(context).canvasColor,
         ),
         child: Row(
           children: [
             Icon(
-              widget.emoji == ""
-                  ? Icons.chat_bubble
-                  : IconData(int.parse(widget.emoji, radix: 20),
-                      fontFamily: 'EmojiFontFamily'),
-              color: selectedChat == widget.seq
+              widget.emoji != ""
+                  ? IconData(int.parse(widget.emoji, radix: 16),
+                      fontFamily: 'EmojiFontFamily')
+                  : Icons.chat_bubble,
+              color: selectedChat == widget.roomKey
                   ? Theme.of(context).textTheme.headline1!.color
                   : Theme.of(context).textTheme.bodyText1!.color,
             ),
@@ -69,23 +103,38 @@ class _ChatState extends State<Chat> {
             Column(
               key: _globalKey,
               children: [
-                Text(
-                  widget.name,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: TextStyle(
-                    color: selectedChat == widget.seq
-                        ? Theme.of(context).textTheme.headline1!.color
-                        : Theme.of(context).textTheme.bodyText1!.color,
-                    fontSize: 14,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text(
+                      widget.name,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: TextStyle(
+                        color: selectedChat == widget.roomKey
+                            ? Theme.of(context).textTheme.headline1!.color
+                            : Theme.of(context).textTheme.bodyText1!.color,
+                        fontSize: 14,
+                      ),
+                    ),
+                    Text(
+                      lastDate,
+                      maxLines: 1,
+                      style: TextStyle(
+                        color: selectedChat == widget.roomKey
+                            ? Theme.of(context).textTheme.headline1!.color
+                            : Theme.of(context).textTheme.bodyText1!.color,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 ),
                 Text(
-                  widget.name,
+                  widget.lastMsg,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                   style: TextStyle(
-                    color: selectedChat == widget.seq
+                    color: selectedChat == widget.roomKey
                         ? Theme.of(context).textTheme.headline1!.color
                         : Theme.of(context).textTheme.bodyText1!.color,
                     fontSize: 10,

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:room505/auth.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:room505/config/palette.dart';
-import 'package:room505/temp/tempClass.dart';
+import 'package:room505/auth/authClass.dart';
+import 'package:room505/screen/chatRoom/chatClass.dart';
 import 'package:room505/selected.dart';
-import 'package:room505/created.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/foundation.dart' as foundation;
 
@@ -57,44 +56,36 @@ class _ChangeStatusDialogState extends State<ChangeStatusDialog> {
 
   @override
   Widget build(BuildContext context) {
-    User user = Provider.of<CreatedProvider>(context).getUserInfo();
-    User selectedUser = Provider.of<SelectedProvider>(context).getUserProfile();
+    User user = Provider.of<AuthProvider>(context).getUserInfo();
+    Emps selectedUser = Provider.of<SelectedProvider>(context).getUserProfile();
     List changeStatus = [];
 
     void _changeStatus() async {
-      List<User> updateStatus = [];
       changeStatus.add(emojiSelected);
       changeStatus.add(statusString);
 
-      updateStatus.add(
-        User(
-          user.seq,
-          user.name,
-          user.email,
-          user.phone,
-          user.image,
-          user.status,
+      Emps userInfo = Emps(
+          "",
+          user.uid,
+          user.userName,
+          user.userId,
+          user.userBirth,
+          user.mobileNum,
+          user.userProfile,
+          user.userState,
           changeStatus,
-          user.time,
-          user.introduce,
-        ),
-      );
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-
-      List<String> updatedUserData =
-          updateStatus.map((user) => jsonEncode(user.toJson())).toList();
-      await prefs.setStringList('user', updatedUserData);
+          user.userIntroduce,
+          user.companyCode,
+          user.deptCode);
 
       setState(() {
         Navigator.of(context).pop();
-        Provider.of<CreatedProvider>(context, listen: false).loadUserInfo();
         Provider.of<SelectedProvider>(context, listen: false).selectedSet("");
-        if (selectedUser.seq != 0 && selectedUser.seq == user.seq) {
+        if (selectedUser.uid != "" && selectedUser.uid == user.uid) {
           Provider.of<SelectedProvider>(context, listen: false)
               .resetUserProfile();
           Provider.of<SelectedProvider>(context, listen: false)
-              .selectedUserProfile(updateStatus[0]);
+              .selectedUserProfile(userInfo);
         }
       });
     }

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:room505/auth.dart';
 import 'package:room505/config/palette.dart';
 import 'package:provider/provider.dart';
 import 'package:room505/selected.dart';
-import 'package:room505/created.dart';
-import 'package:room505/temp/tempClass.dart';
+import 'package:room505/auth/authClass.dart';
 import 'package:room505/mediaQuery.dart';
 import 'package:room505/screen/user/userMenu.dart';
 import 'package:room505/screen/user/userProfile.dart';
@@ -31,13 +31,12 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     final selectedProvider = Provider.of<SelectedProvider>(context);
-    final createdProvider = Provider.of<CreatedProvider>(context);
     final mediaQueryProvider = Provider.of<MediaQueryProvider>(context);
-    User user = createdProvider.getUserInfo();
     MediaQueryData queryData = MediaQuery.of(context);
     double screenWidth = queryData.size.width;
     final _menuWidth = mediaQueryProvider.getUserMenuWidth();
     final _profileWidth = mediaQueryProvider.getUserProfileWidth();
+    User user = Provider.of<AuthProvider>(context).getUserInfo();
     final userProfile = selectedProvider.getUserProfile();
     String selectedMenu = selectedProvider.getMenu();
     String selectedSetMenu = selectedProvider.getSetMenu();
@@ -78,8 +77,8 @@ class _MainScreenState extends State<MainScreen> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(5.0),
                       child: Image.asset(
-                        user.image.isNotEmpty
-                            ? user.image
+                        user.userProfile != ""
+                            ? user.userProfile
                             : 'images/profile.png',
                         fit: BoxFit.cover,
                       ),
@@ -90,11 +89,16 @@ class _MainScreenState extends State<MainScreen> {
                   bottom: 0,
                   right: 15,
                   child: Container(
-                    width: 10,
-                    height: 10,
+                    width: 13,
+                    height: 13,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: user.status ? Palette.greenColor : Palette.textSub,
+                      border: Border.all(
+                        color: Theme.of(context).shadowColor,
+                        width: 2.0,
+                      ),
+                      color:
+                          user.userState ? Palette.greenColor : Palette.textSub,
                     ),
                   ),
                 ),
@@ -173,7 +177,7 @@ class _MainScreenState extends State<MainScreen> {
                     ],
                   ),
                   Container(
-                    width: userProfile.seq == 0
+                    width: userProfile.uid == ""
                         ? MediaQuery.of(context).size.width - _menuWidth
                         : MediaQuery.of(context).size.width -
                             _menuWidth -
@@ -190,7 +194,7 @@ class _MainScreenState extends State<MainScreen> {
                                         ? const ChatRoom()
                                         : null,
                   ),
-                  if (userProfile.seq != 0)
+                  if (userProfile.uid != "")
                     Stack(
                       children: [
                         Container(

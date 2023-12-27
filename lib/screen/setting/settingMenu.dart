@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:room505/auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:room505/selected.dart';
-import 'package:room505/created.dart';
 import 'package:room505/main.dart';
 import 'package:room505/config/palette.dart';
 
@@ -57,12 +57,13 @@ class _SettingMenuState extends State<SettingMenu> {
             TextButton(
               onPressed: () async {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.remove('user');
+                prefs.remove('devicekey');
+                prefs.remove('uid');
                 setState(() {
-                  Provider.of<CreatedProvider>(context, listen: false)
-                      .loadUserInfo();
                   Provider.of<SelectedProvider>(context, listen: false)
                       .selectedSet("");
+                  Provider.of<AuthProvider>(context, listen: false)
+                      .loadUserInfo();
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                       builder: (context) => const App(),

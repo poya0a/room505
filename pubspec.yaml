@@ -49,6 +49,7 @@ dependencies:
   file_picker: ^6.1.1
   win32: ^5.1.1
   path_provider: ^2.1.1
+  uuid: ^4.3.1
 
 dev_dependencies:
   flutter_test:

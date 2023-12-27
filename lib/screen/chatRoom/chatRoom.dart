@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
 import 'dart:io';
 import 'package:provider/provider.dart';
+import 'package:room505/auth.dart';
+import 'package:room505/chat.dart';
 import 'package:room505/common/dialog/emojiDialog.dart';
 import 'package:room505/common/dialog/fileDialog.dart';
 import 'package:room505/selected.dart';
-import 'package:room505/created.dart';
 import 'package:room505/mediaQuery.dart';
-import 'package:room505/temp/tempClass.dart';
+import 'package:room505/screen/chatRoom/chatClass.dart';
 import 'package:room505/screen/chatRoom/chatBubbles.dart';
 import 'package:room505/screen/chatRoom/chatMessage.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class ChatRoom extends StatefulWidget {
   const ChatRoom({super.key});
@@ -20,44 +19,34 @@ class ChatRoom extends StatefulWidget {
 }
 
 class _ChatRoomState extends State<ChatRoom> {
-  late IO.Socket socket;
   late ScrollController _scrollController;
-  late TextEditingController _textController;
-  late FocusNode _keyboardFocusNode;
-  int chatSeq = 0;
-  List<Message> chatMessages = [];
+
+  String roomKey = "";
+  List<Chats> chatMessages = [];
   late bool scrollToBottom;
 
   void getMessages() {
-    socket = IO.io('http://localhost:3000');
-    socket.connect();
+    List<Chats> dataMessages =
+        Provider.of<ChatProvider>(context, listen: false).getChats();
 
-    socket.on('message_' + chatSeq.toString(), (data) {
-      if (data.isNotEmpty) {
-        if (data['message'] != null && data['message'].isNotEmpty) {
-          List<dynamic> messagesData = data['message'];
+    if (dataMessages.isNotEmpty) {
+      for (int i = 1; i < dataMessages.length; i++) {
+        final currentTime = dataMessages[i].writeDate;
+        final previousMessageTime = dataMessages[i - 1].writeDate;
 
-          List<Message> messages =
-              messagesData.map((json) => Message.fromJson(json)).toList();
-
-          setState(() {
-            for (int i = 1; i < messages.length; i++) {
-              final currentTime = messages[i].timestamp;
-              final previousMessageTime = messages[i - 1].timestamp;
-
-              if (previousMessageTime.hour == currentTime.hour &&
-                  previousMessageTime.minute == currentTime.minute) {
-                messages[i - 1].timeCheck = false;
-              }
-            }
-            chatMessages = messages;
-            scrollEvent();
-          });
+        if (previousMessageTime.hour == currentTime.hour &&
+            previousMessageTime.minute == currentTime.minute) {
+          dataMessages[i - 1].timeCheck = false;
         }
-      } else {
-        chatMessages = [];
       }
-    });
+
+      setState(() {
+        chatMessages.addAll(dataMessages);
+        scrollEvent();
+      });
+    } else {
+      chatMessages = [];
+    }
   }
 
   void scrollEvent() {
@@ -72,9 +61,8 @@ class _ChatRoomState extends State<ChatRoom> {
   void initState() {
     super.initState();
     _scrollController = ScrollController();
-    _textController = TextEditingController();
-    _keyboardFocusNode = FocusNode();
-    chatSeq = Provider.of<SelectedProvider>(context, listen: false).getChat();
+    roomKey =
+        Provider.of<ChatProvider>(context, listen: false).getChatRoom().roomKey;
     scrollToBottom =
         Provider.of<SelectedProvider>(context, listen: false).getScroll();
     getMessages();
@@ -91,10 +79,10 @@ class _ChatRoomState extends State<ChatRoom> {
   }
 
   void _handleChatSeqChange() {
-    final newChatSeq =
-        Provider.of<SelectedProvider>(context, listen: false).getChat();
-    if (newChatSeq != chatSeq) {
-      chatSeq = newChatSeq;
+    final newRoomKey =
+        Provider.of<ChatProvider>(context, listen: false).getChatRoom().roomKey;
+    if (newRoomKey != roomKey) {
+      roomKey = newRoomKey;
       getMessages();
     }
   }
@@ -102,7 +90,6 @@ class _ChatRoomState extends State<ChatRoom> {
   @override
   void dispose() {
     _scrollController.dispose();
-    socket.disconnect();
     super.dispose();
   }
 
@@ -113,18 +100,19 @@ class _ChatRoomState extends State<ChatRoom> {
     final _profileWidth =
         Provider.of<MediaQueryProvider>(context).getUserMenuWidth();
     final selectedProvider = Provider.of<SelectedProvider>(context);
+    final userUid = Provider.of<AuthProvider>(context).getUser()['uid'];
     String selectedSetMenu = selectedProvider.getSetMenu();
     File selectedFile = selectedProvider.getFile();
-    final chatList = Provider.of<CreatedProvider>(context).getChatList();
-    ChatList? selectedChat = chatList.firstWhere((chat) => chat.seq == chatSeq,
-        orElse: () => ChatList(0, "", "", []));
+    Member selectedChat = Provider.of<ChatProvider>(context)
+        .getChatRoom()
+        .member
+        .firstWhere((user) => user.uid == userUid,
+            orElse: () => Member("", "", "", "", "", "", 0, "", 0));
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
           _scrollController.position.minScrollExtent) {
         Provider.of<SelectedProvider>(context, listen: false).setScroll(false);
-        Provider.of<CreatedProvider>(context, listen: false)
-            .loadChats(chatSeq, chatMessages.length);
       }
     });
 
@@ -168,13 +156,11 @@ class _ChatRoomState extends State<ChatRoom> {
                         child: Row(
                           children: [
                             Icon(
-                              selectedChat.seq != 0
-                                  ? selectedChat.emoji == ""
-                                      ? Icons.chat_bubble
-                                      : IconData(
-                                          int.parse(selectedChat.emoji,
-                                              radix: 16),
-                                          fontFamily: 'EmojiFontFamily')
+                              selectedChat.roomEmoji != ""
+                                  ? IconData(
+                                      int.parse(selectedChat.roomEmoji,
+                                          radix: 16),
+                                      fontFamily: 'EmojiFontFamily')
                                   : Icons.chat_bubble,
                               color:
                                   Theme.of(context).textTheme.bodyText1!.color,
@@ -183,7 +169,7 @@ class _ChatRoomState extends State<ChatRoom> {
                               width: 10,
                             ),
                             Text(
-                              selectedChat.seq != 0 ? selectedChat.name : '',
+                              selectedChat.roomName,
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                               style: TextStyle(
@@ -237,16 +223,15 @@ class _ChatRoomState extends State<ChatRoom> {
 
                       if (index > 0) {
                         isDifferentDate = areDatesDifferent(
-                          chatMessages[index - 1].timestamp,
-                          chatMessages[index].timestamp,
+                          chatMessages[index - 1].writeDate,
+                          chatMessages[index].writeDate,
                         );
                       }
                       return ChatBubbles(
-                        userSeq: chatMessages[index].seq,
+                        userUid: chatMessages[index].uid,
                         userName: chatMessages[index].userName,
-                        userImage: chatMessages[index].userImage,
-                        message: chatMessages[index].text,
-                        dateTime: chatMessages[index].timestamp,
+                        message: chatMessages[index].msg,
+                        dateTime: chatMessages[index].writeDate,
                         dateCheck: isDifferentDate,
                         timeCheck: chatMessages[index].timeCheck,
                         read: "1",
@@ -255,10 +240,7 @@ class _ChatRoomState extends State<ChatRoom> {
                   ),
                 ),
               ),
-              ChatMessage(
-                textController: _textController,
-                keyboardFocusNode: _keyboardFocusNode,
-              ),
+              ChatMessage(),
               // MessageEditor(),
             ],
           ),

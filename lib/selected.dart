@@ -1,18 +1,31 @@
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
-import 'package:room505/temp/tempClass.dart';
+import 'package:room505/screen/chatRoom/chatClass.dart';
 
 class SelectedProvider extends ChangeNotifier {
   bool _exitApp = false;
   String _menu = '';
   double _positionTop = 0.0;
   double _positionLeft = 0.0;
-  User userProfile = User(0, '', '', '', '', false, [], '', '');
+  Emps userProfile = Emps(
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    false,
+    [],
+    "",
+    "",
+    "",
+  );
   List<AddList> addList = [];
   String _setMenu = '';
   bool _scrollToBottom = true;
-  int _seq = 0;
+  String _roomKey = "";
   Emoji _emoji = const Emoji("", "");
   File _file = File("");
 
@@ -50,17 +63,30 @@ class SelectedProvider extends ChangeNotifier {
     return _positionLeft;
   }
 
-  void selectedUserProfile(User user) {
+  void selectedUserProfile(Emps user) {
     userProfile = user;
     notifyListeners();
   }
 
   void resetUserProfile() {
-    userProfile = User(0, '', '', '', '', false, [], '', '');
+    userProfile = Emps(
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      false,
+      [],
+      "",
+      "",
+      "",
+    );
     notifyListeners();
   }
 
-  User getUserProfile() {
+  Emps getUserProfile() {
     return userProfile;
   }
 
@@ -69,8 +95,8 @@ class SelectedProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void removeUser(int seq) {
-    addList.removeWhere((user) => user.seq == seq);
+  void removeUser(String uid) {
+    addList.removeWhere((user) => user.uid == uid);
     notifyListeners();
   }
 
@@ -88,11 +114,6 @@ class SelectedProvider extends ChangeNotifier {
       _setMenu = setMenu;
       notifyListeners();
     }
-  }
-
-  void selectedChat(int seq) {
-    _seq = seq;
-    notifyListeners();
   }
 
   void selectedEmoji(Emoji emoji) {
@@ -114,10 +135,6 @@ class SelectedProvider extends ChangeNotifier {
     return _setMenu;
   }
 
-  int getChat() {
-    return _seq;
-  }
-
   Emoji getEmoji() {
     return _emoji;
   }
@@ -136,16 +153,16 @@ class SelectedProvider extends ChangeNotifier {
 }
 
 class AddList {
-  final int seq;
+  final String uid;
   final String name;
   final String email;
   final String image;
 
-  AddList(this.seq, this.name, this.email, this.image);
+  AddList(this.uid, this.name, this.email, this.image);
 
   Map<String, dynamic> toJson() {
     return {
-      'seq': seq,
+      'uid': uid,
       'name': name,
       'email': email,
       'image': image,
@@ -154,7 +171,7 @@ class AddList {
 
   factory AddList.fromJson(Map<String, dynamic> json) {
     return AddList(
-      json['seq'],
+      json['uid'],
       json['name'],
       json['email'],
       json['image'],

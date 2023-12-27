@@ -3,14 +3,15 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
+import 'package:room505/auth.dart';
+import 'package:room505/chat.dart';
 import 'package:room505/config/palette.dart';
 import 'package:room505/selected.dart';
-import 'package:room505/created.dart';
 import 'package:room505/common/dialog/userSelectDialog.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/foundation.dart' as foundation;
-import 'package:room505/temp/tempClass.dart';
-import 'package:room505/temp/randomNumber.dart';
+import 'package:room505/auth/authClass.dart';
+import 'package:room505/config/conf.dart';
 
 class CreateChat extends StatefulWidget {
   const CreateChat({super.key});
@@ -20,13 +21,14 @@ class CreateChat extends StatefulWidget {
 }
 
 class _CreateChatState extends State<CreateChat> {
-  User userInfo = User(0, '', '', '', '', false, [], '', '');
-  List<ChatList> chatList = [];
+  User userInfo = User('', '', '', '', '', '', '', '', [], false, '', '', '',
+      [], '', '', 0, '', [], 0, 0, [], "", "");
   List<AddList> addList = [];
 
   bool emojiShowing = false;
   String emojiSelected = "";
   bool _buttonEnabled = false;
+  String defaultTitle = "";
   String title = "";
   String errorMessage = "";
   TextEditingController textController = TextEditingController();
@@ -34,27 +36,18 @@ class _CreateChatState extends State<CreateChat> {
   @override
   void initState() {
     super.initState();
-    userInfo =
-        Provider.of<CreatedProvider>(context, listen: false).getUserInfo();
-    chatList =
-        Provider.of<CreatedProvider>(context, listen: false).getChatList();
+    userInfo = Provider.of<AuthProvider>(context, listen: false).getUserInfo();
     addList =
         Provider.of<SelectedProvider>(context, listen: false).getAddList();
+    defaultTitle = addList.length > 1
+        ? addList
+            .where((item) => item.uid != userInfo.uid)
+            .map((item) => item.name)
+            .join(', ')
+        : addList.map((item) => item.name).join(', ');
+    textController.text = defaultTitle;
 
-    String names = addList.map((item) => item.name).join(', ');
-    bool isTitleContainedInSessionChats =
-        chatList.any((chat) => names == chat.name);
-    setState(() {
-      title = names;
-      textController.text = title;
-      if (isTitleContainedInSessionChats) {
-        _buttonEnabled = false;
-        errorMessage = "이미 사용 중인 이름입니다.";
-      } else {
-        _buttonEnabled = true;
-        errorMessage = "";
-      }
-    });
+    _buttonEnabled = true;
   }
 
   void _onEmojiSelected(Emoji emoji) {
@@ -88,42 +81,42 @@ class _CreateChatState extends State<CreateChat> {
   }
 
   Future<void> _createChat() async {
-    const String url = 'http://localhost:3000/createChatRoom';
-    final seq = generateRandomNumber();
-
+    final String url = requests("ROOM_MAKE");
+    final user = Provider.of<AuthProvider>(context, listen: false).getUser();
+    List<String> uidList = addList.map((item) => item.uid).toList();
     try {
       final response = await http.post(
         Uri.parse(url),
         headers: <String, String>{
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, dynamic>{
-          'seq': seq,
-          'name': title,
+          'devicekey': user['devicekey'],
+          'uid': user['uid'],
+          'uids': uidList,
+          'title': defaultTitle == title || textController.text == defaultTitle
+              ? ""
+              : title,
           'emoji': emojiSelected,
-          'manager': userInfo,
-          'userList': addList,
         }),
       );
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         final resultValue = responseData['result'];
-
-        if (resultValue != null && resultValue is bool) {
-          if (resultValue) {
-            setState(() {
-              Provider.of<SelectedProvider>(context, listen: false)
-                  .resetAddList();
-              Provider.of<CreatedProvider>(context, listen: false)
-                  .loadChatList();
-              Navigator.of(context).pop();
-            });
-          } else {
-            setState(() {
-              errorMessage = '이미 존재하는 채팅방입니다.';
-            });
-          }
+        if (resultValue == "success") {
+          final resultRoomKey = responseData['data']['roomkey'];
+          setState(() {
+            final selectedProvider =
+                Provider.of<SelectedProvider>(context, listen: false);
+            final chatProvider =
+                Provider.of<ChatProvider>(context, listen: false);
+            chatProvider.loadChatList(user);
+            chatProvider.loadChats(user, resultRoomKey);
+            selectedProvider.resetAddList();
+            selectedProvider.selectedMenu("chat");
+            Navigator.of(context).pop();
+          });
         } else {
           setState(() {
             errorMessage = '잘못된 형식의 응답입니다.';

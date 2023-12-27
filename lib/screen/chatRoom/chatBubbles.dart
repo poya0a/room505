@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:room505/auth.dart';
+import 'package:room505/chat.dart';
 import 'package:intl/intl.dart';
 import 'package:room505/config/palette.dart';
 import 'package:flutter_chat_bubble/bubble_type.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:flutter_chat_bubble/clippers/chat_bubble_clipper_5.dart';
 import 'package:provider/provider.dart';
-import 'package:room505/created.dart';
 import 'package:room505/selected.dart';
-import 'package:room505/temp/tempClass.dart';
-import 'package:room505/temp/tempUserList.dart';
+import 'package:room505/auth/authClass.dart';
+import 'package:room505/screen/chatRoom/chatClass.dart';
 
 class ChatBubbles extends StatefulWidget {
-  final int userSeq;
+  final String userUid;
   final String userName;
-  final String userImage;
   final String message;
   final DateTime dateTime;
   final bool dateCheck;
@@ -23,9 +21,8 @@ class ChatBubbles extends StatefulWidget {
   final String read;
 
   const ChatBubbles({
-    required this.userSeq,
+    required this.userUid,
     required this.userName,
-    required this.userImage,
     required this.message,
     required this.dateTime,
     required this.dateCheck,
@@ -38,14 +35,49 @@ class ChatBubbles extends StatefulWidget {
 }
 
 class _ChatBubblesState extends State<ChatBubbles> {
+  Emps notCurrentUser = Emps(
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    false,
+    [],
+    "",
+    "",
+    "",
+  );
+
   @override
   Widget build(BuildContext context) {
-    User user = Provider.of<CreatedProvider>(context).getUserInfo();
-    bool currentUser = user.seq == widget.userSeq;
+    User user = Provider.of<AuthProvider>(context).getUserInfo();
+    bool currentUser = user.uid == widget.userUid;
+    List<Dept> depts = Provider.of<ChatProvider>(context).getUserList();
     String sendDate = DateFormat('yyyy년 MM월 dd일').format(DateTime(
         widget.dateTime.year, widget.dateTime.month, widget.dateTime.day));
 
     String sendTime = DateFormat('hh:mm a').format(widget.dateTime);
+
+    for (var dept in depts) {
+      notCurrentUser =
+          dept.emps.firstWhere((user) => user.uid == widget.userUid,
+              orElse: () => Emps(
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    false,
+                    [],
+                    "",
+                    "",
+                    "",
+                  ));
+    }
 
     return Column(
       children: [
@@ -129,7 +161,9 @@ class _ChatBubblesState extends State<ChatBubbles> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
                       image: DecorationImage(
-                        image: AssetImage(widget.userImage),
+                        image: AssetImage(user.userProfile != ""
+                            ? user.userProfile
+                            : 'images/profile.png'),
                         fit: BoxFit.fill,
                       ),
                     ),
@@ -146,14 +180,8 @@ class _ChatBubblesState extends State<ChatBubbles> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        final List<User> users = generateTempUserList();
-                        for (var user in users) {
-                          if (user.seq == widget.userSeq) {
-                            Provider.of<SelectedProvider>(context,
-                                    listen: false)
-                                .selectedUserProfile(user);
-                          }
-                        }
+                        Provider.of<SelectedProvider>(context, listen: false)
+                            .selectedUserProfile(notCurrentUser);
                       },
                       child: Container(
                         width: 40,
@@ -162,7 +190,9 @@ class _ChatBubblesState extends State<ChatBubbles> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5),
                           image: DecorationImage(
-                            image: AssetImage(widget.userImage),
+                            image: AssetImage(notCurrentUser.image != ""
+                                ? notCurrentUser.image
+                                : 'images/profile.png'),
                             fit: BoxFit.fill,
                           ),
                         ),

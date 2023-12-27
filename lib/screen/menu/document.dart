@@ -1,11 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:room505/common/dialog/documentDialog.dart';
-import 'package:room505/config/palette.dart';
-import 'package:provider/provider.dart';
-import 'package:room505/mediaQuery.dart';
-import 'package:room505/selected.dart';
-import 'package:room505/created.dart';
-import 'package:room505/temp/tempClass.dart';
 
 class Document extends StatefulWidget {
   const Document({super.key});

@@ -37,22 +37,24 @@ class User {
   final String userName;
   final String userBirth;
   final String userProfile;
-  final String userStatus;
+  final List<dynamic> userStatus;
   final bool userState;
   final String userIntroduce;
   final String mobileNum;
   final String registerYn;
-  final List<int> termsSeq;
+  final List<dynamic> termsSeq;
   final String useYn;
   final String adminYn;
   final int adminLevel;
   final String myArea;
   final List<dynamic> loginInfo;
-  final List<Map<String, dynamic>> writerIno;
+  // final List<Map<String, dynamic>> writerInfo;
   final int writeUnixtime;
-  final List<Map<String, dynamic>> updateInfo;
+  // final List<Map<String, dynamic>> updateInfo;
   final int updateUnixtime;
   final List<dynamic> loginDevice;
+  final String companyCode;
+  final String deptCode;
 
   User(
     this._id,
@@ -74,11 +76,13 @@ class User {
     this.adminLevel,
     this.myArea,
     this.loginInfo,
-    this.writerIno,
+    // this.writerInfo,
     this.writeUnixtime,
-    this.updateInfo,
+    // this.updateInfo,
     this.updateUnixtime,
     this.loginDevice,
+    this.companyCode,
+    this.deptCode,
   );
 
   Map<String, dynamic> toJson() {
@@ -102,11 +106,13 @@ class User {
       'adminLevel': adminLevel,
       'myArea': myArea,
       'loginInfo': loginInfo,
-      'writerIno': writerIno,
+      // 'writerIno': writerInfo,
       'writeUnixtime': writeUnixtime,
-      'updateInfo': updateInfo,
+      // 'updateInfo': updateInfo,
       'updateUnixtime': updateUnixtime,
       'loginDevice': loginDevice,
+      'companyCode': companyCode,
+      'deptCode': deptCode,
     };
   }
 
@@ -131,11 +137,40 @@ class User {
       json['ADMIN_LEVEL'],
       json['MY_AREA'],
       json['LOGIN_INFO'],
-      json['WRITER_INFO'],
+      // json['WRITER_INFO'],
       json['WRITE_UNIXTIME'],
-      json['UPDATER_INFO'],
+      // json['UPDATER_INFO'],
       json['UPDATE_UNIXTIME'],
       json['LOGIN_DEVICE'],
+      json['COMPANY_CODE'],
+      json['DEPT_CODE'],
+    );
+  }
+}
+
+class Company {
+  final String _id;
+  final String code;
+  final String name;
+  final String useYn;
+
+  Company(this._id, this.code, this.name, this.useYn);
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': _id,
+      'code': code,
+      'name': name,
+      'useYn': useYn,
+    };
+  }
+
+  factory Company.fromJson(Map<String, dynamic> json) {
+    return Company(
+      json['_id'],
+      json['COMPANY_CODE'],
+      json['COMPANY_NAME'],
+      json['USE_YN'],
     );
   }
 }

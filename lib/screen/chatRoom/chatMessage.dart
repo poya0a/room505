@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:room505/auth.dart';
+import 'package:room505/chat.dart';
 import 'dart:io';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:uuid/uuid.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:room505/socket.dart';
 import 'package:provider/provider.dart';
-import 'package:room505/temp/tempClass.dart';
 import 'package:room505/selected.dart';
-import 'package:room505/created.dart';
+import 'package:room505/auth/authClass.dart';
+import 'package:room505/screen/chatRoom/chatClass.dart';
 
 const platform = MethodChannel('screenshotChannel');
 
@@ -22,35 +25,17 @@ Future<void> takeScreenshot() async {
 }
 
 class ChatMessage extends StatefulWidget {
-  final TextEditingController textController;
-  final FocusNode keyboardFocusNode;
-
-  const ChatMessage({
-    Key? key,
-    required this.textController,
-    required this.keyboardFocusNode,
-  }) : super(key: key);
+  const ChatMessage({Key? key}) : super(key: key);
 
   @override
   State<ChatMessage> createState() => _ChatMessageState();
 }
 
 class _ChatMessageState extends State<ChatMessage> {
-  late IO.Socket socket;
+  final TextEditingController _textController = TextEditingController();
+  final FocusNode _keyboardFocusNode = FocusNode();
+  bool keyboardFocus = true;
   bool enabledSubmit = true;
-
-  @override
-  void initState() {
-    super.initState();
-    socket = IO.io('http://localhost:3000');
-    socket.connect();
-  }
-
-  @override
-  void dispose() {
-    socket.disconnect();
-    super.dispose();
-  }
 
   void _openFileExplorer() async {
     try {
@@ -81,61 +66,67 @@ class _ChatMessageState extends State<ChatMessage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _textController.addListener(_textChangeListener);
+  }
+
+  void _textChangeListener() {
+    setState(() {
+      if (_textController.text != "") {
+        enabledSubmit = false;
+      } else {
+        enabledSubmit = true;
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _textController.removeListener(_textChangeListener);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    User user = Provider.of<CreatedProvider>(context).getUserInfo();
+    User user = Provider.of<AuthProvider>(context).getUserInfo();
+    String roomKey = Provider.of<ChatProvider>(context).getChatRoom().roomKey;
     String selectedSetMenu =
         Provider.of<SelectedProvider>(context).getSetMenu();
-    int chatSeq = Provider.of<SelectedProvider>(context).getChat();
     Emoji emoji = Provider.of<SelectedProvider>(context).getEmoji();
-    FocusScope.of(context).requestFocus(widget.keyboardFocusNode);
 
     if (emoji.emoji.isNotEmpty) {
-      final currentText = widget.textController.text;
+      final currentText = _textController.text;
       final newEmoji = emoji.emoji;
 
-      widget.textController.text = '$currentText$newEmoji';
+      _textController.text = '$currentText$newEmoji';
       Provider.of<SelectedProvider>(context, listen: false)
           .selectedEmoji(const Emoji("", ""));
     }
 
-    if (widget.textController.value.text.trim().isEmpty) {
-      enabledSubmit = true;
-    } else {
-      enabledSubmit = false;
+    if (keyboardFocus == true) {
+      FocusScope.of(context).requestFocus(_keyboardFocusNode);
+      keyboardFocus = false;
     }
 
     void sendMessage(String text) {
-      final totalCount =
-          Provider.of<CreatedProvider>(context, listen: false).getTotalCount();
+      String newUuid = Uuid().v4();
+      Message sendMsg = Message('101', roomKey, newUuid, newUuid, user.uid,
+          user.userName, text, text, 'WEB');
+      Provider.of<SocketProvider>(context, listen: false).sendMessage(sendMsg);
 
-      final message = Message(
-        seq: user.seq,
-        text: text,
-        timestamp: DateTime.now(),
-        userName: user.name,
-        userImage: user.image,
-      );
-
-      socket.emit('sendMessage', [
-        {
-          'chatSeq': chatSeq,
-          'message': message,
-          'totalCount': totalCount,
-        }
-      ]);
-      widget.textController.clear();
       Provider.of<SelectedProvider>(context, listen: false).setScroll(true);
     }
 
-    if (widget.keyboardFocusNode.hasFocus) {
-      widget.keyboardFocusNode.onKey = (node, event) {
+    if (_keyboardFocusNode.hasFocus) {
+      _keyboardFocusNode.onKey = (node, event) {
         if (event is RawKeyEvent &&
             event.isKeyPressed(LogicalKeyboardKey.enter)) {
           if (event.isShiftPressed) {
-            widget.textController.text += '\n';
+            _textController.text += '\n';
           } else {
             if (!enabledSubmit) {
-              sendMessage(widget.textController.text);
+              sendMessage(_textController.text);
             }
           }
         }
@@ -161,8 +152,8 @@ class _ChatMessageState extends State<ChatMessage> {
             Container(
               padding: const EdgeInsets.all(10.0),
               child: TextField(
-                controller: widget.textController,
-                focusNode: widget.keyboardFocusNode,
+                controller: _textController,
+                focusNode: _keyboardFocusNode,
                 keyboardType: TextInputType.multiline,
                 minLines: 1,
                 maxLines: 5,
@@ -276,7 +267,7 @@ class _ChatMessageState extends State<ChatMessage> {
                           : Theme.of(context).textTheme.bodyText1!.color,
                       onPressed: () {
                         if (!enabledSubmit) {
-                          sendMessage(widget.textController.text);
+                          sendMessage(_textController.text);
                         }
                       },
                     ),

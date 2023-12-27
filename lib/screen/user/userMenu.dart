@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:room505/created.dart';
+import 'package:room505/auth.dart';
+import 'package:room505/chat.dart';
+import 'package:room505/socket.dart';
 import 'package:room505/theme.dart';
-import 'package:room505/temp/tempClass.dart';
+import 'package:room505/screen/chatRoom/chatClass.dart';
 import 'package:room505/common/menu.dart';
 import 'package:room505/common/chat.dart';
 import 'package:room505/common/dialog/userSelectDialog.dart';
 
 class UserMenu extends StatefulWidget {
-  const UserMenu({super.key});
+  const UserMenu({super.key, company});
 
   @override
   State<UserMenu> createState() => _UserMenuState();
@@ -17,6 +19,7 @@ class UserMenu extends StatefulWidget {
 class _UserMenuState extends State<UserMenu> {
   String mode = "라이트 모드";
   List<ChatList> chatRooms = [];
+  Map<String, String> user = {};
 
   void _showUserList(BuildContext context) {
     showDialog(
@@ -28,11 +31,22 @@ class _UserMenuState extends State<UserMenu> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    user = Provider.of<AuthProvider>(context, listen: false).getUser();
+    Provider.of<ChatProvider>(context, listen: false).loadChatList(user);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final createdProvider = Provider.of<CreatedProvider>(context);
-    createdProvider.loadChatList();
-    chatRooms = createdProvider.getChatList();
+    chatRooms = Provider.of<ChatProvider>(context).getChatList();
+    String company = Provider.of<AuthProvider>(context).getCompanyInfo().name;
+
+    for (ChatList roomsInfo in chatRooms) {
+      Provider.of<SocketProvider>(context)
+          .joinRoom(roomsInfo.roomKey, user['uid']!);
+    }
 
     return Container(
       color: Theme.of(context).canvasColor,
@@ -65,7 +79,7 @@ class _UserMenuState extends State<UserMenu> {
                             child: TextButton(
                               onPressed: () {},
                               child: Text(
-                                "CHAT",
+                                company,
                                 style: TextStyle(
                                   color: Theme.of(context)
                                       .textTheme
@@ -147,14 +161,21 @@ class _UserMenuState extends State<UserMenu> {
                           itemCount: chatRooms.length,
                           itemBuilder: (BuildContext context, int index) {
                             final chat = chatRooms[index];
+                            final myRoom = chat.member.firstWhere(
+                              (member) => member.uid == user['uid'],
+                              orElse: () =>
+                                  Member("", "", "", "", "", '', 0, "", 0),
+                            );
                             return Column(
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.only(bottom: 10),
                                   child: Chat(
-                                    seq: chat.seq,
-                                    name: chat.name,
-                                    emoji: chat.emoji,
+                                    roomKey: chat.roomKey,
+                                    name: myRoom.roomName,
+                                    emoji: myRoom.roomEmoji,
+                                    lastMsg: chat.roomLastMsg,
+                                    time: chat.roomLastUnixtime,
                                   ),
                                 ),
                               ],

@@ -2,12 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:room505/config/palette.dart';
 import 'package:room505/selected.dart';
-import 'package:room505/created.dart';
-import 'package:room505/common/dialog/createChatDialog.dart';
-import 'package:room505/temp/tempClass.dart';
 
 class DocumentDialog extends StatefulWidget {
   const DocumentDialog({super.key});

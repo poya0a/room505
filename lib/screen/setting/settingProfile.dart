@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:room505/auth.dart';
 import 'package:provider/provider.dart';
 import 'package:room505/selected.dart';
-import 'package:room505/created.dart';
-import 'package:room505/temp/tempClass.dart';
+import 'package:room505/screen/chatRoom/chatClass.dart';
+import 'package:room505/auth/authClass.dart';
 import 'package:room505/config/palette.dart';
 import 'package:room505/common/dialog/changeStatusDialog.dart';
 
@@ -20,40 +19,31 @@ class _SettingProfileState extends State<SettingProfile> {
 
   @override
   Widget build(BuildContext context) {
-    User user = Provider.of<CreatedProvider>(context).getUserInfo();
-    User selectedUser = Provider.of<SelectedProvider>(context).getUserProfile();
+    User user = Provider.of<AuthProvider>(context).getUserInfo();
+    Emps selectedUser = Provider.of<SelectedProvider>(context).getUserProfile();
 
     void changeStatus(type) async {
-      List<User> updateStatus = [];
-
-      updateStatus.add(
-        User(
-          user.seq,
-          user.name,
-          user.email,
-          user.phone,
-          user.image,
-          type == "switchStatus" ? !user.status : user.status,
-          type == "removeStatus" ? [] : user.updateStatus,
-          user.time,
-          user.introduce,
-        ),
-      );
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-
-      List<String> updatedUserData =
-          updateStatus.map((user) => jsonEncode(user.toJson())).toList();
-      await prefs.setStringList('user', updatedUserData);
+      Emps userInfo = Emps(
+          "",
+          user.uid,
+          user.userName,
+          user.userId,
+          user.userBirth,
+          user.mobileNum,
+          user.userProfile,
+          type == "switchStatus" ? !user.userState : user.userState,
+          type == "removeStatus" ? [] : user.userStatus,
+          user.userIntroduce,
+          user.companyCode,
+          user.deptCode);
 
       setState(() {
-        Provider.of<CreatedProvider>(context, listen: false).loadUserInfo();
         Provider.of<SelectedProvider>(context, listen: false).selectedSet("");
-        if (selectedUser.seq != 0 && selectedUser.seq == user.seq) {
+        if (selectedUser.uid != "" && selectedUser.uid == user.uid) {
           Provider.of<SelectedProvider>(context, listen: false)
               .resetUserProfile();
           Provider.of<SelectedProvider>(context, listen: false)
-              .selectedUserProfile(updateStatus[0]);
+              .selectedUserProfile(userInfo);
         }
       });
     }
@@ -82,7 +72,7 @@ class _SettingProfileState extends State<SettingProfile> {
           right: 20,
           child: Container(
             width: 200,
-            height: user.updateStatus.isEmpty ? 177 : 210,
+            height: user.userStatus.isEmpty ? 177 : 210,
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(
                 Radius.circular(5.0),
@@ -114,8 +104,8 @@ class _SettingProfileState extends State<SettingProfile> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(5.0),
                             child: Image.asset(
-                              user.image.isNotEmpty
-                                  ? user.image
+                              user.userProfile.isNotEmpty
+                                  ? user.userProfile
                                   : 'images/profile.png',
                               fit: BoxFit.cover,
                             ),
@@ -126,7 +116,7 @@ class _SettingProfileState extends State<SettingProfile> {
                             Padding(
                               padding: const EdgeInsets.only(top: 10),
                               child: Text(
-                                user.name,
+                                user.userName,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -139,7 +129,7 @@ class _SettingProfileState extends State<SettingProfile> {
                                   height: 10,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: user.status
+                                    color: user.userState
                                         ? Palette.greenColor
                                         : Palette.textSub,
                                   ),
@@ -148,7 +138,7 @@ class _SettingProfileState extends State<SettingProfile> {
                                   width: 5,
                                 ),
                                 Text(
-                                  user.status ? "대화 가능" : "자리 비움",
+                                  user.userState ? "대화 가능" : "자리 비움",
                                   style: const TextStyle(
                                     fontSize: 12,
                                   ),
@@ -197,11 +187,10 @@ class _SettingProfileState extends State<SettingProfile> {
                         child: Row(
                           children: [
                             Icon(
-                              user.updateStatus.isEmpty
+                              user.userStatus.isEmpty
                                   ? Icons.tag_faces
                                   : IconData(
-                                      int.parse(user.updateStatus[0],
-                                          radix: 16),
+                                      int.parse(user.userStatus[0], radix: 16),
                                       fontFamily: 'EmojiFontFamily',
                                     ),
                               size: 16,
@@ -210,9 +199,9 @@ class _SettingProfileState extends State<SettingProfile> {
                               width: 10,
                             ),
                             Text(
-                              user.updateStatus.isEmpty
+                              user.userStatus.isEmpty
                                   ? "상태 업데이트"
-                                  : user.updateStatus[1],
+                                  : user.userStatus[1],
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                               style: const TextStyle(
@@ -225,7 +214,7 @@ class _SettingProfileState extends State<SettingProfile> {
                     ),
                   ),
                 ),
-                if (user.updateStatus.isNotEmpty)
+                if (user.userStatus.isNotEmpty)
                   MouseRegion(
                     onEnter: (_) {
                       setState(() {
@@ -280,7 +269,7 @@ class _SettingProfileState extends State<SettingProfile> {
                             ? Theme.of(context).shadowColor
                             : Theme.of(context).scaffoldBackgroundColor,
                       ),
-                      child: Text(user.status ? "자리 비움으로 설정" : "대화 가능으로 설정"),
+                      child: Text(user.userState ? "자리 비움으로 설정" : "대화 가능으로 설정"),
                     ),
                   ),
                 ),
@@ -292,10 +281,24 @@ class _SettingProfileState extends State<SettingProfile> {
                   },
                   child: GestureDetector(
                     onTap: () {
+                      Emps userInfo = Emps(
+                          "",
+                          user.uid,
+                          user.userName,
+                          user.userId,
+                          user.userBirth,
+                          user.mobileNum,
+                          user.userProfile,
+                          user.userState,
+                          user.userStatus,
+                          user.userIntroduce,
+                          user.companyCode,
+                          user.deptCode);
+
                       Provider.of<SelectedProvider>(context, listen: false)
                           .selectedSet("");
                       Provider.of<SelectedProvider>(context, listen: false)
-                          .selectedUserProfile(user);
+                          .selectedUserProfile(userInfo);
                     },
                     child: Container(
                       width: 200,
